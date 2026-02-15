@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { AnalysisResult, PointOfInterest } from '@/lib/types';
+import { checkRateLimit } from '@/lib/ratelimit';
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -176,6 +177,19 @@ function checkSafetyWarnings(steps: any[]) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check rate limits
+    const ip = request.headers.get('x-forwarded-for') ||
+               request.headers.get('x-real-ip') ||
+               'unknown';
+    const rateLimitResult = checkRateLimit(ip);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: rateLimitResult.error || 'Rate limit exceeded' },
+        { status: 429 }
+      );
+    }
+
     const { pickup, dropoff } = await request.json();
 
     if (!pickup || !dropoff) {
