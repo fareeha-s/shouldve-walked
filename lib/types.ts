@@ -1,0 +1,47 @@
+export interface PointOfInterest {
+  name: string;
+  description: string;
+  type: 'coffee' | 'restaurant' | 'bar' | 'mural' | 'art' | 'park' | 'viewpoint' | 'nature';
+  location: {
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface HealthStats {
+  walkTimeMinutes: number;
+  waymoTimeMinutes: number;
+  steps: number;
+  caloriesBurned: number;
+  foodEquivalent: string;
+  exerciseMinutes: number;
+  exercisePercentage: number;
+  guiltScore: number;
+}
+
+export interface TimeComparison {
+  text: string;
+}
+
+export interface SafetyWarning {
+  area: string;
+  warning: string;
+}
+
+export interface AnalysisResult {
+  route: {
+    distance: number; // in meters
+    duration: number; // in seconds
+    polyline: string;
+    bounds: {
+      north: number;
+      south: number;
+      east: number;
+      west: number;
+    };
+  };
+  pointsOfInterest: PointOfInterest[];
+  healthStats: HealthStats;
+  timeComparisons: TimeComparison[];
+  safetyWarnings: SafetyWarning[];
+}
