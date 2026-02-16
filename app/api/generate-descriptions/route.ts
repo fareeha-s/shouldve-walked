@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 Occasionally use slightly old-fashioned or formal phrasing — not as a gimmick, just because it fits. Think: someone who reads a lot and it has seeped into how they talk.
 
 Places:
-${places.map((p: any, i: number) => \`\${i + 1}. \${p.name} (\${p.type})\`).join('\n')}
+${places.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
 
 MAXIMUM 12 words. One sentence or fragment. Lowercase.
 
