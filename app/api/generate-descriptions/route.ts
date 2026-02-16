@@ -30,7 +30,7 @@ Generate one short, punchy description for each place. MAXIMUM 12 words. Just on
 
 Examples:
 - iconic victorian houses with the best sunset view
-- SF's most instagrammed street you drove past
+- SF's most instagrammed street you rode past
 - a hidden beach with views you'll never see
 - murals that took artists weeks to paint
 - stairs with a view worth the climb

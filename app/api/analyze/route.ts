@@ -18,8 +18,8 @@ const SKETCHY_AREAS = [
     name: 'tenderloin',
     bounds: { north: 37.7877, south: 37.7805, west: -122.4181, east: -122.4089 },
     warnings: {
-      day: "so you would've walked through the tenderloin. your waymo driver gets it",
-      night: "yeah no this part you were absolutely right to drive"
+      day: "so you would've walked through the tenderloin. robotaxi gets it",
+      night: "yeah no this part you were absolutely right to waymo"
     }
   },
   {
@@ -27,7 +27,7 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7840, south: 37.7800, west: -122.4140, east: -122.4080 },
     warnings: {
       day: "mid-market during the day. character building",
-      night: "mid-market at night. sometimes waymo is the answer"
+      night: "mid-market at night. robotaxi was the answer"
     }
   },
   {
@@ -35,22 +35,22 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7820, south: 37.7750, west: -122.4100, east: -122.4050 },
     warnings: {
       day: "6th street. you would've had some stories",
-      night: "6th street after dark. your waymo fare was worth every penny"
+      night: "6th street after dark. waymo was worth every penny"
     }
   },
   {
     name: 'bayview',
     bounds: { north: 37.7350, south: 37.7100, west: -122.3950, east: -122.3700 },
     warnings: {
-      day: "bayview. waymo was the right call",
-      night: "bayview at night. absolutely waymo was justified"
+      day: "bayview. robotaxi was the right call",
+      night: "bayview at night. robotaxi was absolutely justified"
     }
   },
   {
     name: 'hunters point',
     bounds: { north: 37.7350, south: 37.7200, west: -122.3850, east: -122.3600 },
     warnings: {
-      day: "hunters point. yeah you made the right choice",
+      day: "hunters point. yeah you made the right call",
       night: "hunters point after dark. waymo 100%"
     }
   },
@@ -58,8 +58,8 @@ const SKETCHY_AREAS = [
     name: 'western addition',
     bounds: { north: 37.7850, south: 37.7750, west: -122.4350, east: -122.4200 },
     warnings: {
-      day: "parts of western addition can be sketchy. waymo was fair",
-      night: "western addition at night. waymo was smart"
+      day: "parts of western addition can be sketchy. robotaxi was fair",
+      night: "western addition at night. robotaxi was smart"
     }
   },
 ];
@@ -389,14 +389,19 @@ function calculateVerdict(
   weather: { condition: string; temperature: number },
   walkTimeMinutes: number,
   hasParks: boolean,
-  distance: number
+  distance: number,
+  neighborhoods: string[]
 ) {
+  // Pick ride brand based on neighborhood
+  const isMission = neighborhoods.some(n => n.toLowerCase().includes('mission'));
+  const ride = (isMission && Math.random() < 0.25) ? 'zoox' : (Math.random() > 0.5 ? 'waymo' : 'robotaxi');
+
   // Edge case: Extremely short walks (< 2 minutes)
   if (walkTimeMinutes < 2) {
     const distanceFeet = Math.round(distance * 3.28084);
     return {
       worthIt: false,
-      reason: `${distanceFeet} feet by car... that's honestly just lazy 🤍`,
+      reason: `${distanceFeet} feet by ${ride}... that's honestly just lazy 🤍`,
     };
   }
 
@@ -413,7 +418,7 @@ function calculateVerdict(
   if (safetyWarnings.length > 2) {
     return {
       worthIt: true,
-      reason: 'yeah no... waymo earned its fare on this one 💀',
+      reason: `yeah no... the ${ride} earned its fare on this one 💀`,
     };
   }
 
@@ -421,7 +426,7 @@ function calculateVerdict(
   if (safetyWarnings.length > 0) {
     return {
       worthIt: true,
-      reason: 'nah you were right to take the waymo on this one',
+      reason: `nah you were right to call the ${ride} on this one 🫡`,
     };
   }
 
@@ -429,7 +434,7 @@ function calculateVerdict(
   if (walkTimeMinutes > 120) {
     return {
       worthIt: true,
-      reason: `${Math.round(walkTimeMinutes / 60)} hours of walking... that's a day hike. waymo was smart 💀`,
+      reason: `${Math.round(walkTimeMinutes / 60)} hours of walking... that's a day hike. ${ride} was smart 💀`,
     };
   }
 
@@ -459,7 +464,7 @@ function calculateVerdict(
   if (weather.temperature > 90 && walkTimeMinutes > 20) {
     return {
       worthIt: true,
-      reason: `${weather.temperature}° for that long? nah... waymo was self-care`,
+      reason: `${weather.temperature}° for that long? nah... ${ride} was self-care`,
     };
   }
 
@@ -471,21 +476,19 @@ function calculateVerdict(
     };
   }
 
-  // If it's raining and no parks, not worth it
-  if (weather.condition === 'rainy' && !hasParks) {
-    return {
-      worthIt: true,
-      reason: 'rain + no nice views... waymo was totally justified 😔',
-    };
-  }
-
-  // If it's rainy but there are parks
-  if (weather.condition === 'rainy' && hasParks) {
-    return {
-      worthIt: false,
-      reason: 'rainy park walks hit different... you missed that fresh smell 😭',
-    };
-  }
+  // TEMPORARILY DISABLED for screenshot - re-enable rain checks later
+  // if (weather.condition === 'rainy' && !hasParks) {
+  //   return {
+  //     worthIt: true,
+  //     reason: `rain + no nice views... ${ride} was totally justified 😔`,
+  //   };
+  // }
+  // if (weather.condition === 'rainy' && hasParks) {
+  //   return {
+  //     worthIt: false,
+  //     reason: 'rainy park walks hit different... you missed that fresh smell 😭',
+  //   };
+  // }
 
   // If it's very hot or very cold
   if (weather.temperature > 85) {
@@ -497,7 +500,7 @@ function calculateVerdict(
   if (weather.temperature < 45) {
     return {
       worthIt: true,
-      reason: `${weather.temperature}° is perfectly reasonable waymo weather ☹️`,
+      reason: `${weather.temperature}° is perfectly reasonable ${ride} weather ☹️`,
     };
   }
 
@@ -513,7 +516,7 @@ function calculateVerdict(
   if (walkTimeMinutes > 35) {
     return {
       worthIt: true,
-      reason: 'that\'s a long walk... your legs thank you for the waymo 😔',
+      reason: `that's a long walk... your legs thank you for the ${ride} 😔`,
     };
   }
 
@@ -590,7 +593,7 @@ export async function POST(request: NextRequest) {
     const hasParks = pointsOfInterest.some(poi => poi.type === 'park');
 
     // Calculate verdict
-    const verdict = calculateVerdict(safetyWarnings, weather, healthStats.walkTimeMinutes, hasParks, directions.distance);
+    const verdict = calculateVerdict(safetyWarnings, weather, healthStats.walkTimeMinutes, hasParks, directions.distance, neighborhoods);
 
     const result: AnalysisResult = {
       route: {
