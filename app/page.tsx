@@ -68,8 +68,11 @@ export default function Home() {
         {results && !loading && (
           <>
             <section className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
-              <div className="text-[#888] font-mono text-xs uppercase tracking-[0.25em] mb-5">verdict</div>
-              <div className={`text-xl md:text-3xl lg:text-4xl font-serif leading-relaxed px-4 ${results.verdict.worthIt ? 'text-[#27ae60]' : 'text-[#e67e22]'}`}>
+              <div className="text-[#888] font-mono text-xs uppercase tracking-[0.25em] mb-3">should you have walked?</div>
+              <div className={`text-5xl md:text-7xl lg:text-8xl font-mono font-bold tracking-tight mb-4 ${results.verdict.worthIt ? 'text-[#27ae60]' : 'text-[#e67e22]'}`}>
+                {results.verdict.worthIt ? 'no.' : 'yes.'}
+              </div>
+              <div className={`text-base md:text-xl lg:text-2xl font-serif leading-relaxed px-4 ${results.verdict.worthIt ? 'text-[#27ae60]/80' : 'text-[#e67e22]/80'}`}>
                 {results.verdict.reason}
               </div>
               {results.weather.condition !== 'unknown' && (

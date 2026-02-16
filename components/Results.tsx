@@ -48,30 +48,33 @@ export default function Results({ data }: ResultsProps) {
       {data.pointsOfInterest.length > 0 ? (
         <section>
           <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-6">what you missed</h2>
-          <div className="space-y-4">
+          {/* Mobile: stacked list / Desktop: grid of boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {data.pointsOfInterest.map((poi, index) => (
               <div
                 key={index}
-                className="border-l-[4px] border-[#e67e22] pl-4 md:pl-6 py-4 bg-gradient-to-r from-[#fff9f5] to-transparent hover:from-[#fff4ed] transition-colors"
+                className="border-[3px] border-black bg-white p-4 md:p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex flex-col"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="font-mono text-sm md:text-base font-semibold text-[#2c3e50] mb-2">
-                      {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type === 'viewpoint' ? 'landmark' : poi.type === 'art' ? 'art & culture' : poi.type === 'coffee' ? 'cafe' : poi.type === 'nature' ? 'nature' : poi.type})</span>
-                    </div>
-                    <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="font-mono text-sm font-semibold text-[#2c3e50] leading-tight">
+                    {poi.name}
                   </div>
                   {poi.type !== 'nature' && (
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name + " San Francisco")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 px-3 py-1.5 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors text-xs font-mono font-semibold uppercase"
+                      className="flex-shrink-0 w-6 h-6 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors flex items-center justify-center text-[10px]"
+                      title="view on map"
                     >
-                      view
+                      &#8599;
                     </a>
                   )}
                 </div>
+                <div className="text-[10px] font-mono text-[#999] uppercase tracking-[0.15em] mb-2">
+                  {poi.type === 'viewpoint' ? 'landmark' : poi.type === 'art' ? 'art & culture' : poi.type === 'coffee' ? 'cafe' : poi.type === 'nature' ? 'nature' : poi.type}
+                </div>
+                <div className="text-xs text-[#555] leading-relaxed mt-auto">{poi.description}</div>
               </div>
             ))}
 

@@ -21,26 +21,30 @@ export async function POST(request: NextRequest) {
     const openai = getOpenAIClient();
 
     // Generate POI descriptions
-    const poiPrompt = `You are writing lovely, elegant one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. The tone is warm, wistful, almost poetic. Think of a well-traveled British narrator quietly describing what was lost. Not sarcastic. Not trying to be funny. Just genuinely beautiful.
+    const poiPrompt = `You are writing very short, slightly unhinged descriptions of SF places someone missed by taking a robotaxi. The tone is deadpan, specific, and a little weird. Like someone who knows way too much about this place and is slightly haunted by it. Not flowery. Not poetic. More like a friend who says something so specific it becomes accidentally profound.
 
 Places:
 ${places.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
 
-Generate one elegant description for each place. MAXIMUM 12 words. One sentence. Evocative. Make the reader feel the loss.
+MAXIMUM 10 words per description. One fragment. Lowercase. No periods unless it is funny.
 
-Examples:
-- where the painted victorians glow amber in the late afternoon light
-- a winding mosaic staircase tucked between quiet gardens
-- the ruins where the sea reclaims what we built
-- a hidden alley alive with decades of colour and story
-- the view from the top that makes the whole city feel small
-- the kind of bookshop where you lose an afternoon and find a first edition
-- where the sourdough has been rising since before you were born
-- a bar so dimly lit you forget what century it is
+Examples of the exact vibe:
+- the concrete slides that have destroyed thousands of pants
+- where someone left a labyrinth and nobody asked why
+- the parrots live here now. they won.
+- smells like 1967 and incense and poor decisions
+- genuinely just a yoda statue in the woods
+- a piano that plays itself when the tide comes in
+- sourdough older than most startups in this city
+- they put furniture on the outside of the building. on purpose.
+- the steps everyone photographs and nobody actually climbs
+- where the fog eats the bridge and you just watch
 
-Write about what makes each place genuinely special — the light, the history, the feeling of being there. For cafes and shops, describe the atmosphere and what makes them an institution. Be specific to each place. No generic descriptions.
+Be SPECIFIC to each place. Reference actual details about it — what it looks like, what happens there, what is weird about it. For cafes/restaurants, mention the actual thing they are known for. For parks, mention what you actually see or do there. For bars, mention the vibe inside.
 
-IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match the places list.`;
+NEVER be generic. NEVER say "hidden gem" or "tucked away" or "nestled" or "charming." If the description could apply to any place, rewrite it.
+
+IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match.`;
 
     const poiResponse = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
