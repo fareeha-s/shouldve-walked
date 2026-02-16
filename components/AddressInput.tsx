@@ -80,13 +80,8 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
             return;
           }
 
-          // For specific places (parks, landmarks, establishments), use the name
-          // This prevents "Dolores Park" from showing as "San Francisco, CA"
-          const isSpecificPlace = isPark || hasPointOfInterest || hasEstablishment;
-          if (isSpecificPlace && place.name) {
-            setter(place.name);
-            validSetter(true);
-          } else if (place.formatted_address) {
+          // Use formatted_address for API compatibility (Google Directions needs it)
+          if (place.formatted_address) {
             setter(place.formatted_address);
             validSetter(true);
           } else if (place.name) {
