@@ -413,16 +413,15 @@ function calculateVerdict(
   if (safetyWarnings.length > 2) {
     return {
       worthIt: true,
-      reason: 'that route goes through multiple sketchy areas... waymo saved you 💀',
+      reason: 'yeah no... waymo earned its fare on this one 💀',
     };
   }
 
   // If there are ANY safety warnings, ALWAYS say waymo was worth it
   if (safetyWarnings.length > 0) {
-    const areas = safetyWarnings.map(w => w.area).join(' and ');
     return {
       worthIt: true,
-      reason: `walking through ${areas}? waymo was the right move`,
+      reason: 'nah you were right to take the waymo on this one',
     };
   }
 
