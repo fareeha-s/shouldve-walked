@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AddressInput from '@/components/AddressInput';
+import Results from '@/components/Results';
 import type { AnalysisResult } from '@/lib/types';
 
 export default function Home() {
@@ -63,7 +64,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Show verdict if we have results */}
+        {/* Show verdict first, then all results */}
         {results && !loading && (
           <>
             <section className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
@@ -77,6 +78,8 @@ export default function Home() {
                 </div>
               )}
             </section>
+
+            <Results data={results} />
 
             {/* Try another route at bottom */}
             <div className="mt-16 md:mt-20 pt-16 md:pt-20 border-t-[3px] border-black">
