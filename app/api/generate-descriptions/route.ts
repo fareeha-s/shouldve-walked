@@ -64,44 +64,37 @@ IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per lin
 
     // Edge case: Very long walks (over 2 hours)
     if (walkTimeMinutes > 120) {
-      timePrompt = `Generate 5 time comparisons for a ${walkTimeMinutes} minute (${Math.round(walkTimeMinutes / 60)} hour) walk someone skipped by taking a robotaxi.
+      timePrompt = `Generate 5 time comparisons for a ${walkTimeMinutes} minute (${Math.round(walkTimeMinutes / 60)} hour) walk that someone skipped by taking a robotaxi.
 
-CRITICAL: Each comparison MUST be something that actually takes roughly ${walkTimeMinutes} minutes or less. The walk is LONGER than these things. Be accurate about how long things take.
+This is an insane distance to walk. The comparisons should highlight how long this is. The walk is LONGER than these things. Dry. Sarcastic. Just stating facts.
 
-Tone: dry, deadpan tech/SF life observations. Not trying to be funny. Just stating facts.
+The comparison should be roughly accurate — the thing you're comparing to should actually take less than ${walkTimeMinutes} minutes. Don't compare to something that takes 5 minutes when the walk is 3 hours.
 
-Examples of ACCURATE comparisons:
-- for 150 min: "that's longer than most movies you've watched this year"
-- for 180 min: "you could have finished a full technical interview loop"
-- for 200 min: "that's an entire cross-country flight's worth of walking"
+Examples for long walks:
+- that's longer than most movies you've sat through this year
+- you've had shorter oncalls
+- that's a full deploy cycle including the rollback
 
-DO NOT exaggerate or make up durations. If you're not sure how long something takes, don't use it.
-
-Return ONLY the comparisons, one per line.`;
+Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
     } else {
       // Normal walks
-      timePrompt = `Generate 5 time comparisons for a ${walkTimeMinutes} minute walk someone skipped by taking a robotaxi in San Francisco.
+      timePrompt = `Generate 5 dry, sarcastic time comparisons for a ${walkTimeMinutes} minute walk that someone skipped by taking a robotaxi in San Francisco.
 
-CRITICAL: Each comparison MUST be something that genuinely takes about ${walkTimeMinutes} minutes (give or take a few minutes). Be accurate. Do not exaggerate.
+The tone is smart tech twitter. Dry. Sarcastic. Not trying hard. Just stating observations. Think people who've shipped real products, read papers, have opinions on infra. Not YC references. Not junior.
 
-Real-world reference points:
-- 5 min: making a cup of coffee, checking your email
-- 10 min: a short standup meeting, walking to the corner store
-- 15 min: a coffee break, one pomodoro break
-- 20 min: a short podcast episode, waiting for food delivery
-- 25 min: one pomodoro work session, a quick gym warmup
-- 30 min: a lunch break, one episode of a sitcom
-- 40 min: a long meeting, a spin class
-- 45 min: a yoga class, a therapy session
-- 60 min: a proper workout, one episode of prestige TV
+The comparison should be roughly accurate — the thing you're comparing to should actually take around ${walkTimeMinutes} minutes, give or take. Don't say something takes ${walkTimeMinutes} minutes if it obviously doesn't in real life. A little exaggeration is fine but it shouldn't be absurd.
 
-Tone: dry, deadpan tech/SF life observations. Smart but not trying hard. Think people who ship products and have opinions on infra.
+AVOID: Dating jokes, relationship references, romance, going out references. Stick to tech/work/SF life only.
 
-AVOID: Dating/relationship jokes, romance references. Stick to tech/work/SF life.
+Examples of the vibe:
+- you've spent longer waiting for CI to pass
+- that's one loom video nobody will watch
+- shorter than your average debugging session
+- that's how long you spent choosing a font for your landing page
 
-DO NOT say something takes ${walkTimeMinutes} minutes if it actually takes way more or way less. Accuracy matters.
+Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
 
-Return ONLY the comparisons, one per line.`;
+Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ONLY the comparisons, one per line.`;
     }
 
     const timeResponse = await openai.chat.completions.create({
