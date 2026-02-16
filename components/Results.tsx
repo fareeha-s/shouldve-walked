@@ -84,7 +84,7 @@ export default function Results({ data }: ResultsProps) {
                 <div className="text-lg md:text-xl font-mono text-black leading-relaxed">
                   {data.healthStats.exerciseEquivalent}
                 </div>
-                {data.timeComparisons.length > 0 && (
+                {data.timeComparisons.length > 0 && data.timeComparisons[0].text && (
                   <div className="text-sm md:text-base font-mono text-[#7f8c8d] leading-relaxed">
                     {data.timeComparisons[0].text}
                   </div>

@@ -74,7 +74,7 @@ export default function Home() {
               </div>
               {results.weather.condition !== 'unknown' && (
                 <div className="text-sm font-mono text-[#666] mt-7">
-                  {results.weather.temperature}° • {results.weather.condition}
+                  {results.weather.temperature}° • {results.weather.condition === 'foggy' ? 'foggy (karl says hi)' : results.weather.condition}
                 </div>
               )}
             </section>

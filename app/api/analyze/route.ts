@@ -107,6 +107,13 @@ async function getDirections(pickup: string, dropoff: string) {
     throw new Error('this only works in the bay area');
   }
 
+  // Check if route is roughly in SF (not San Jose, Oakland, etc.)
+  const isSFish = (lat: number, lng: number) =>
+    lat >= 37.70 && lat <= 37.82 && lng >= -122.52 && lng <= -122.35;
+  if (!isSFish(startLat, startLng) && !isSFish(endLat, endLng)) {
+    throw new Error('this works best in SF proper... try a route in the city');
+  }
+
   return {
     distance: leg.distance.value,
     duration: leg.duration.value,
@@ -397,7 +404,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
 
 function calculateHealthStats(distance: number, duration: number) {
   const walkTimeMinutes = Math.round(duration / 60);
-  const waymoTimeMinutes = Math.max(3, Math.round(walkTimeMinutes * 0.4)); // Assume Waymo is ~40% of walk time, min 3 min
+  const waymoTimeMinutes = Math.max(3, Math.round(walkTimeMinutes * 0.35)); // Assume Waymo is ~35% of walk time, min 3 min
 
   // Average: 2000 steps per mile, distance is in meters
   const miles = distance / 1609.34;
@@ -408,20 +415,24 @@ function calculateHealthStats(distance: number, duration: number) {
 
   // Exercise equivalents
   const exerciseEquivalents = [
-    { name: '1 Barry\'s class', minutes: 50 },
-    { name: '45 min cycling', minutes: 45 },
-    { name: '30 min peloton ride', minutes: 30 },
-    { name: '1 SoulCycle class', minutes: 45 },
-    { name: '20 min HIIT workout', minutes: 20 },
-    { name: '40 min yoga flow', minutes: 40 },
+    { name: 'one flight of stairs', min: 1, max: 3 },
+    { name: 'a warm-up jog', min: 4, max: 8 },
+    { name: 'a quick yoga flow', min: 9, max: 15 },
+    { name: '20 min HIIT workout', min: 16, max: 25 },
+    { name: '30 min peloton ride', min: 26, max: 35 },
+    { name: '40 min yoga flow', min: 36, max: 44 },
+    { name: '1 SoulCycle class', min: 45, max: 55 },
+    { name: '1 Barry\'s class', min: 56, max: 70 },
+    { name: 'a proper long run', min: 71, max: 90 },
+    { name: 'a half marathon at a chill pace', min: 91, max: 150 },
   ];
 
   const matchingExercise = exerciseEquivalents.find(
-    (e) => Math.abs(e.minutes - walkTimeMinutes) < 10
+    (e) => walkTimeMinutes >= e.min && walkTimeMinutes <= e.max
   );
   const exerciseEquivalent = matchingExercise
     ? matchingExercise.name
-    : `a ${walkTimeMinutes}-minute treadmill session`;
+    : `a ${walkTimeMinutes}-minute workout`;
 
   const exerciseMinutes = walkTimeMinutes;
   const exercisePercentage = Math.min(100, Math.round((exerciseMinutes / 30) * 100));
@@ -598,6 +609,20 @@ function calculateVerdict(
     };
   }
 
+  // Fog: classic SF, great for walking actually
+  if (weather.condition === 'foggy') {
+    if (walkTimeMinutes < 20) {
+      return {
+        worthIt: false,
+        reason: 'a little karl the fog never hurt anyone... should\'ve walked 🌫️',
+      };
+    }
+    return {
+      worthIt: false,
+      reason: `${walkTimeMinutes} minutes in the fog... that\'s peak SF walking weather 🌫️`,
+    };
+  }
+
   // Rain: don't discourage walking, just give practical advice
   if (weather.condition === 'rainy' || weather.condition === 'stormy') {
     const hasStairsOrHills = poiNames.some(name =>
@@ -686,8 +711,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing pickup or dropoff' }, { status: 400 });
     }
 
+    // Catch same location entered twice
+    if (pickup.toLowerCase().trim() === dropoff.toLowerCase().trim()) {
+      return NextResponse.json(
+        { error: "that's... the same place. you didn't need a waymo OR a walk." },
+        { status: 400 }
+      );
+    }
+
     // Get directions
     const directions = await getDirections(pickup, dropoff);
+
+    // Catch absurdly short routes (under 200m / ~1 block)
+    if (directions.distance < 200) {
+      return NextResponse.json(
+        { error: "that's literally one block. come on." },
+        { status: 400 }
+      );
+    }
 
     // Get weather
     const midLat = (directions.steps[0].start_location.lat + directions.steps[directions.steps.length - 1].end_location.lat) / 2;
