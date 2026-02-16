@@ -70,7 +70,7 @@ export default function Home() {
           <ThemeSwitcher current={theme} onChange={handleThemeChange} />
         </div>
 
-        {/* Show input at top only if no results yet */}
+        {/* Show input at top if no results yet, or if there was an error */}
         {!results && !loading && <AddressInput onAnalyze={handleAnalyze} loading={loading} />}
 
         {loading && (

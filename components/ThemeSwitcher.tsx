@@ -19,6 +19,7 @@ export default function ThemeSwitcher({ current, onChange }: ThemeSwitcherProps)
     <button
       onClick={next}
       title={`theme: ${themes[current].label}`}
+      aria-label={`Switch theme, currently ${themes[current].label}`}
       className="flex flex-col items-center gap-1 group"
     >
       <div
