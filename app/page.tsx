@@ -47,22 +47,8 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* Show verdict right after question if we have results */}
-        {results && !loading && (
-          <section className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
-            <div className="text-[#888] font-mono text-xs uppercase tracking-[0.25em] mb-5">verdict</div>
-            <div className={`text-xl md:text-3xl lg:text-4xl font-serif leading-relaxed px-4 ${results.verdict.worthIt ? 'text-[#27ae60]' : 'text-[#e67e22]'}`}>
-              {results.verdict.reason}
-            </div>
-            {results.weather.condition !== 'unknown' && (
-              <div className="text-sm font-mono text-[#666] mt-7">
-                {results.weather.temperature}° • {results.weather.condition}
-              </div>
-            )}
-          </section>
-        )}
-
-        <AddressInput onAnalyze={handleAnalyze} loading={loading} />
+        {/* Show input at top only if no results yet */}
+        {!results && !loading && <AddressInput onAnalyze={handleAnalyze} loading={loading} />}
 
         {loading && (
           <div className="mt-12 md:mt-16 text-center">
@@ -78,7 +64,30 @@ export default function Home() {
           </div>
         )}
 
-        {results && !loading && <Results data={results} />}
+        {/* Show verdict first if we have results */}
+        {results && !loading && (
+          <>
+            <section className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
+              <div className="text-[#888] font-mono text-xs uppercase tracking-[0.25em] mb-5">verdict</div>
+              <div className={`text-xl md:text-3xl lg:text-4xl font-serif leading-relaxed px-4 ${results.verdict.worthIt ? 'text-[#27ae60]' : 'text-[#e67e22]'}`}>
+                {results.verdict.reason}
+              </div>
+              {results.weather.condition !== 'unknown' && (
+                <div className="text-sm font-mono text-[#666] mt-7">
+                  {results.weather.temperature}° • {results.weather.condition}
+                </div>
+              )}
+            </section>
+
+            <Results data={results} />
+
+            {/* Try another route at bottom */}
+            <div className="mt-16 md:mt-20 pt-16 md:pt-20 border-t-[3px] border-black">
+              <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-6 text-center">try a different route</h2>
+              <AddressInput onAnalyze={handleAnalyze} loading={false} />
+            </div>
+          </>
+        )}
       </div>
     </main>
   );

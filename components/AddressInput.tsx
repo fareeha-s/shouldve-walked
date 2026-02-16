@@ -162,7 +162,7 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
         disabled={!pickup || !dropoff || !pickupValid || !dropoffValid || loading}
         className="w-full bg-black text-white py-3 md:py-4 px-6 font-mono text-sm md:text-base font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2c3e50] hover:scale-[1.02] active:scale-[0.98] transition-all border-[3px] border-black uppercase tracking-wide"
       >
-        {loading ? 'calculating...' : 'show me what i missed'}
+        {loading ? 'calculating...' : 'go'}
       </button>
     </form>
   );

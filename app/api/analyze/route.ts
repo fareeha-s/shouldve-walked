@@ -290,7 +290,7 @@ function calculateHealthStats(distance: number, duration: number) {
   );
   const exerciseEquivalent = matchingExercise
     ? matchingExercise.name
-    : `${walkTimeMinutes} min treadmill`;
+    : `a ${walkTimeMinutes}-minute treadmill session`;
 
   const exerciseMinutes = walkTimeMinutes;
   const exercisePercentage = Math.min(100, Math.round((exerciseMinutes / 30) * 100));
