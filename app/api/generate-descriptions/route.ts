@@ -21,28 +21,28 @@ export async function POST(request: NextRequest) {
     const openai = getOpenAIClient();
 
     // Generate POI descriptions
-    const poiPrompt = `You are writing very short, slightly unhinged descriptions of SF places someone missed by taking a robotaxi. The tone is deadpan, specific, and a little weird. Like someone who knows way too much about this place and is slightly haunted by it. Not flowery. Not poetic. More like a friend who says something so specific it becomes accidentally profound.
+    const poiPrompt = `You are writing warm, wistful one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. The tone is tender but oddly specific. Like someone who loves this city so much they notice strange details nobody else does. Beautiful but with one foot in the absurd.
 
 Places:
 ${places.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
 
-MAXIMUM 10 words per description. One fragment. Lowercase. No periods unless it is funny.
+MAXIMUM 12 words. One sentence or fragment. Lowercase. Evocative but slightly strange.
 
 Examples of the exact vibe:
-- the concrete slides that have destroyed thousands of pants
-- where someone left a labyrinth and nobody asked why
-- the parrots live here now. they won.
-- smells like 1967 and incense and poor decisions
-- genuinely just a yoda statue in the woods
-- a piano that plays itself when the tide comes in
-- sourdough older than most startups in this city
-- they put furniture on the outside of the building. on purpose.
-- the steps everyone photographs and nobody actually climbs
-- where the fog eats the bridge and you just watch
+- where the painted victorians catch light like they know you are watching
+- a labyrinth someone built on a cliff and then just... left
+- the parrots own this hill now and they are not subtle about it
+- a staircase made of broken dishes and someone's whole heart
+- the ruins where the ocean is slowly winning
+- sourdough that has been alive longer than your lease
+- a bar so dark your eyes need a full minute to adjust
+- where the fog rolls in and the bridge just disappears mid-sentence
+- the kind of park where strangers share a sunset without talking
+- a bookshop that smells like dust and ambition and 1953
 
-Be SPECIFIC to each place. Reference actual details about it — what it looks like, what happens there, what is weird about it. For cafes/restaurants, mention the actual thing they are known for. For parks, mention what you actually see or do there. For bars, mention the vibe inside.
+Be SPECIFIC to each place. Reference what actually makes it singular — a texture, a smell, a light, a weird fact. For cafes, what you would actually taste or feel sitting there. For parks, the specific view or the specific silence. For bars, the exact quality of the darkness.
 
-NEVER be generic. NEVER say "hidden gem" or "tucked away" or "nestled" or "charming." If the description could apply to any place, rewrite it.
+NEVER use: hidden gem, tucked away, nestled, charming, vibrant, bustling, quaint, iconic. These words are dead. If the description could apply to any city, rewrite it until it could only be San Francisco.
 
 IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match.`;
 
