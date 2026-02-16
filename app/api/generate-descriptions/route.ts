@@ -62,9 +62,9 @@ IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per lin
 This is an insane distance to walk. The comparisons should highlight how long this is. The walk is LONGER than these things. Dry. Sarcastic. Just stating facts.
 
 Examples for ${walkTimeMinutes} minutes:
-- that's longer than most movies
-- you've sat through shorter all-hands meetings
-- that's a full workday of walking
+- that's longer than your entire CI/CD pipeline
+- you've had shorter oncalls
+- that's a full deploy cycle including rollback
 
 IMPORTANT: The ${walkTimeMinutes} minute walk should be LONGER than what you're comparing it to. Don't say "you've spent less time" - that makes no sense.
 
