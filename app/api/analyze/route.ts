@@ -203,7 +203,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
   const isTooCloseToStartOrEnd = (lat: number, lng: number) => {
     const startDist = Math.sqrt(Math.pow(lat - startLat, 2) + Math.pow(lng - startLng, 2));
     const endDist = Math.sqrt(Math.pow(lat - endLat, 2) + Math.pow(lng - endLng, 2));
-    const threshold = 0.005; // ~500 meters
+    const threshold = 0.003; // ~300 meters
     return startDist < threshold || endDist < threshold;
   };
 
@@ -234,23 +234,23 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
 
   // If we found fewer than 3 landmarks, look for interesting local places (not chains)
   if (places.length < 3) {
-    const sampleSteps = steps.filter((_, i) => i % 4 === 0).slice(0, 3);
+    const sampleSteps = steps.filter((_, i) => i % 3 === 0).slice(0, 5);
 
     for (const step of sampleSteps) {
-      if (places.length >= 5) break; // Max 5 total
+      if (places.length >= 7) break; // Max 7 total
 
       const lat = step.start_location.lat;
       const lng = step.start_location.lng;
 
       // Search for parks, murals, viewpoints
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=150&type=park|point_of_interest&key=${GOOGLE_MAPS_API_KEY}`;
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=300&type=park|point_of_interest&key=${GOOGLE_MAPS_API_KEY}`;
 
       const response = await fetch(url);
       const data = await response.json();
 
       if (data.results) {
-        for (const place of data.results.slice(0, 2)) {
-          if (places.length >= 5) break;
+        for (const place of data.results.slice(0, 3)) {
+          if (places.length >= 7) break;
 
           const placeLat = place.geometry.location.lat;
           const placeLng = place.geometry.location.lng;
@@ -285,7 +285,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
   }
 
   // Limit to 5 places max
-  return places.slice(0, 5);
+  return places.slice(0, 7);
 }
 
 function calculateHealthStats(distance: number, duration: number) {
