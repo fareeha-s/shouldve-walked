@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import AddressInput from '@/components/AddressInput';
 import type { AnalysisResult } from '@/lib/types';
 
@@ -8,7 +8,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const verdictRef = useRef<HTMLDivElement>(null);
 
   const handleAnalyze = async (pickup: string, dropoff: string) => {
     setLoading(true);
@@ -37,13 +36,6 @@ export default function Home() {
       setLoading(false);
     }
   };
-
-  // Scroll to verdict when results appear
-  useEffect(() => {
-    if (results && verdictRef.current) {
-      verdictRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [results]);
 
   return (
     <main className="min-h-screen bg-[#f5f5f0] text-black">
@@ -74,7 +66,7 @@ export default function Home() {
         {/* Show verdict if we have results */}
         {results && !loading && (
           <>
-            <section ref={verdictRef} className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
+            <section className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
               <div className="text-[#888] font-mono text-xs uppercase tracking-[0.25em] mb-5">verdict</div>
               <div className={`text-xl md:text-3xl lg:text-4xl font-serif leading-relaxed px-4 ${results.verdict.worthIt ? 'text-[#27ae60]' : 'text-[#e67e22]'}`}>
                 {results.verdict.reason}
@@ -97,7 +89,7 @@ export default function Home() {
         {/* Subtle credit */}
         <div className="mt-20 mb-8 text-center">
           <a 
-            href="https://fareeha.sh" 
+            href="https://x.com/fareehasala/status/2022844579331105191?s=20" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-[11px] font-mono text-[#999] hover:text-[#666] transition-colors tracking-wider"
