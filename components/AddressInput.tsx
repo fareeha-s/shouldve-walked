@@ -42,7 +42,7 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           bounds: bayAreaBounds,
           strictBounds: true, // Only show results within bounds
           componentRestrictions: { country: 'us' },
-          fields: ['formatted_address', 'name', 'types', 'address_components'],
+          fields: ['formatted_address', 'name', 'types', 'address_components', 'geometry'],
         };
 
         const pickupAutocomplete = new window.google.maps.places.Autocomplete(
@@ -59,9 +59,19 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
         const handlePlaceSelect = (
           place: google.maps.places.PlaceResult,
           setter: (value: string) => void,
-          validSetter: (valid: boolean) => void
+          validSetter: (valid: boolean) => void,
+          inputElement: HTMLInputElement
         ) => {
-          // Reject if it's ONLY a generic area (no specific types at all)
+          // If no place object, they probably just typed something
+          if (!place.geometry) {
+            console.log('No geometry - probably just typed');
+            validSetter(false);
+            return;
+          }
+
+          console.log('Place selected:', place.name, place.formatted_address, place.types);
+
+          // Reject if it's ONLY a generic area
           const genericTypes = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country', 'postal_code', 'political', 'geocode'];
           const hasOnlyGenericTypes = place.types?.every(type => genericTypes.includes(type));
 
@@ -69,35 +79,29 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
             alert('please enter a specific address or location, not just a city or area');
             setter('');
             validSetter(false);
+            inputElement.value = '';
             return;
           }
 
-          // Just use formatted_address like Google Maps does
-          // Only exception: if it's too generic (just "San Francisco"), construct better address
-          if (place.formatted_address) {
-            const cityOnlyPattern = /^San Francisco,?\s*(CA|California)?\s*$/i;
-            if (cityOnlyPattern.test(place.formatted_address.trim()) && place.name) {
-              // Generic address, construct better one
-              setter(`${place.name}, San Francisco, CA`);
-            } else {
-              // Use what Google provides
-              setter(place.formatted_address);
-            }
-            validSetter(true);
-          } else if (place.name) {
-            setter(place.name);
-            validSetter(true);
-          }
+          // Use formatted_address, period. No tricks.
+          const addressToUse = place.formatted_address || place.name || '';
+          console.log('Setting address to:', addressToUse);
+          
+          setter(addressToUse);
+          validSetter(true);
+          
+          // Also set the input value directly to prevent Google from overwriting it
+          inputElement.value = addressToUse;
         };
 
         pickupAutocomplete.addListener('place_changed', () => {
           const place = pickupAutocomplete.getPlace();
-          handlePlaceSelect(place, setPickup, setPickupValid);
+          handlePlaceSelect(place, setPickup, setPickupValid, pickupInputRef.current!);
         });
 
         dropoffAutocomplete.addListener('place_changed', () => {
           const place = dropoffAutocomplete.getPlace();
-          handlePlaceSelect(place, setDropoff, setDropoffValid);
+          handlePlaceSelect(place, setDropoff, setDropoffValid, dropoffInputRef.current!);
         });
       }
     };
