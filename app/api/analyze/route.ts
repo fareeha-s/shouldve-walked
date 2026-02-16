@@ -230,6 +230,53 @@ const SF_LANDMARKS = [
   { name: 'Jack Kerouac Alley', lat: 37.7976, lng: -122.4061, type: 'art' as const, radius: 0.001 , priority: 2 },
   { name: 'Pier 7 boardwalk', lat: 37.7980, lng: -122.3974, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
   { name: 'Embarcadero waterfront', lat: 37.7955, lng: -122.3917, type: 'viewpoint' as const, radius: 0.003 , priority: 2 },
+
+  // Cool local shops and SF institutions
+  { name: 'Green Apple Books', lat: 37.7828, lng: -122.4634, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: 'Dog Eared Books', lat: 37.7527, lng: -122.4180, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: 'Amoeba Music', lat: 37.7696, lng: -122.4507, type: 'art' as const, radius: 0.002 , priority: 2 },
+  { name: 'Paxton Gate', lat: 37.7534, lng: -122.4185, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: 'Adobe Books', lat: 37.7529, lng: -122.4169, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: 'Bound Together Anarchist Book Collective', lat: 37.7696, lng: -122.4476, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: '826 Valencia pirate store', lat: 37.7523, lng: -122.4210, type: 'art' as const, radius: 0.001 , priority: 2 },
+
+  // Beloved cafes and food spots
+  { name: 'Tartine Bakery', lat: 37.7614, lng: -122.4240, type: 'coffee' as const, radius: 0.001 , priority: 2 },
+  { name: 'Philz Coffee (original)', lat: 37.7510, lng: -122.4216, type: 'coffee' as const, radius: 0.001 , priority: 2 },
+  { name: 'Trouble Coffee', lat: 37.7536, lng: -122.5066, type: 'coffee' as const, radius: 0.001 , priority: 2 },
+  { name: 'Liguria Bakery', lat: 37.8004, lng: -122.4095, type: 'coffee' as const, radius: 0.001 , priority: 2 },
+  { name: 'Swan Oyster Depot', lat: 37.7898, lng: -122.4216, type: 'restaurant' as const, radius: 0.001 , priority: 2 },
+  { name: 'Golden Boy Pizza', lat: 37.7994, lng: -122.4076, type: 'restaurant' as const, radius: 0.001 , priority: 2 },
+
+  // Pocket parks and community spaces
+  { name: 'Cayuga Park', lat: 37.7183, lng: -122.4428, type: 'park' as const, radius: 0.002 , priority: 2 },
+  { name: 'Patricia\'s Green', lat: 37.7757, lng: -122.4229, type: 'park' as const, radius: 0.001 , priority: 2 },
+  { name: 'South Park', lat: 37.7823, lng: -122.3942, type: 'park' as const, radius: 0.002 , priority: 2 },
+  { name: 'Michelangelo Playground', lat: 37.8005, lng: -122.4098, type: 'park' as const, radius: 0.001 , priority: 2 },
+  { name: 'Noe Valley Town Square', lat: 37.7513, lng: -122.4326, type: 'park' as const, radius: 0.001 , priority: 2 },
+
+  // Street art, murals, installations
+  { name: 'Precita Eyes murals', lat: 37.7474, lng: -122.4109, type: 'mural' as const, radius: 0.002 , priority: 2 },
+  { name: 'Calle 24 Latino Cultural District', lat: 37.7521, lng: -122.4181, type: 'mural' as const, radius: 0.003 , priority: 2 },
+  { name: 'Diego Rivera mural at SFAI', lat: 37.8006, lng: -122.4058, type: 'art' as const, radius: 0.001 , priority: 1 },
+  { name: 'Defenestration building', lat: 37.7863, lng: -122.3963, type: 'art' as const, radius: 0.001 , priority: 2 },
+
+  // Interesting architecture and quirky spots
+  { name: 'Sentinel Building (Coppola)', lat: 37.7975, lng: -122.4064, type: 'viewpoint' as const, radius: 0.001 , priority: 2 },
+  { name: 'Vesuvio Cafe', lat: 37.7976, lng: -122.4060, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Specs\' bar', lat: 37.7978, lng: -122.4062, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Tosca Cafe', lat: 37.7976, lng: -122.4056, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Comstock Saloon', lat: 37.7977, lng: -122.4050, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Li Po Cocktail Lounge', lat: 37.7951, lng: -122.4065, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Church of 8 Wheels', lat: 37.7710, lng: -122.4317, type: 'art' as const, radius: 0.001 , priority: 2 },
+
+  // More Atlas Obscura / hidden gems
+  { name: 'Audium sound sculpture', lat: 37.7869, lng: -122.4377, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: 'Humanity mural at Beach & Taylor', lat: 37.8071, lng: -122.4163, type: 'mural' as const, radius: 0.001 , priority: 2 },
+  { name: 'SF Letterpress', lat: 37.7618, lng: -122.4189, type: 'art' as const, radius: 0.001 , priority: 2 },
+  { name: 'Trick Dog bar', lat: 37.7647, lng: -122.4199, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Smuggler\'s Cove', lat: 37.7757, lng: -122.4229, type: 'bar' as const, radius: 0.001 , priority: 2 },
+  { name: 'Urban Putt', lat: 37.7637, lng: -122.4219, type: 'art' as const, radius: 0.001 , priority: 2 },
 ];
 
 // Chain stores and junk places to filter out
@@ -345,56 +392,73 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
     places.push(...landmarkMatches);
   }
 
-  // If we found fewer than 3 landmarks, look for interesting local places (not chains)
-  if (places.length < 3) {
-    const sampleSteps = steps.filter((_, i) => i % 3 === 0).slice(0, 5);
+  // Always search for interesting local places along the route (even if we found landmarks)
+  if (places.length < 7) {
+    // Sample more points along the route for better coverage
+    const totalSteps = steps.length;
+    const sampleCount = Math.min(8, totalSteps);
+    const sampleInterval = Math.max(1, Math.floor(totalSteps / sampleCount));
+    const sampleSteps = steps.filter((_, i) => i % sampleInterval === 0).slice(0, 8);
 
-    for (const step of sampleSteps) {
-      if (places.length >= 7) break; // Max 7 total
+    // Search for genuinely interesting place types
+    const interestingTypes = [
+      'park|art_gallery|museum|tourist_attraction',
+      'cafe|book_store|bar|bakery',
+    ];
 
-      const lat = step.start_location.lat;
-      const lng = step.start_location.lng;
+    for (const typeQuery of interestingTypes) {
+      if (places.length >= 7) break;
 
-      // Search for parks, murals, viewpoints
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=200&type=park|point_of_interest|natural_feature|tourist_attraction|museum|art_gallery&key=${GOOGLE_MAPS_API_KEY}`;
+      for (const step of sampleSteps) {
+        if (places.length >= 7) break;
 
-      const response = await fetch(url);
-      const data = await response.json();
+        const lat = step.start_location.lat;
+        const lng = step.start_location.lng;
 
-      if (data.results) {
-        for (const place of data.results.slice(0, 3)) {
-          if (places.length >= 7) break;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=350&type=${typeQuery}&key=${GOOGLE_MAPS_API_KEY}`;
 
-          const placeLat = place.geometry.location.lat;
-          const placeLng = place.geometry.location.lng;
+        const response = await fetch(url);
+        const data = await response.json();
 
-          // Skip chains, junk places, already seen, and too close to start/end
-          if (isChain(place.name) ||
-              isJunkPlace(place) ||
-              seenPlaces.has(place.place_id) ||
-              isTooCloseToStartOrEnd(placeLat, placeLng)) continue;
+        if (data.results) {
+          for (const place of data.results.slice(0, 5)) {
+            if (places.length >= 7) break;
 
-          seenPlaces.add(place.place_id);
+            const placeLat = place.geometry.location.lat;
+            const placeLng = place.geometry.location.lng;
 
-          let type: PointOfInterest['type'] = 'park';
-          if (place.types.includes('park')) type = 'park';
-          else if (place.types.includes('art_gallery')) type = 'art';
-          else if (place.types.includes('museum')) type = 'art';
-          else type = 'viewpoint';
+            if (isChain(place.name) ||
+                isJunkPlace(place) ||
+                seenPlaces.has(place.place_id) ||
+                seenPlaces.has(place.name) ||
+                isTooCloseToStartOrEnd(placeLat, placeLng)) continue;
 
-          places.push({
-            name: place.name,
-            description: '',
-            type,
-            location: {
-              lat: placeLat,
-              lng: placeLng,
-            },
-          });
+            seenPlaces.add(place.place_id);
+            seenPlaces.add(place.name);
+
+            // Better type mapping for local gems
+            let type: PointOfInterest['type'] = 'viewpoint';
+            if (place.types.includes('park')) type = 'park';
+            else if (place.types.includes('art_gallery') || place.types.includes('museum')) type = 'art';
+            else if (place.types.includes('cafe') || place.types.includes('bakery')) type = 'coffee';
+            else if (place.types.includes('bar')) type = 'bar';
+            else if (place.types.includes('book_store')) type = 'art';
+            else if (place.types.includes('restaurant')) type = 'restaurant';
+
+            places.push({
+              name: place.name,
+              description: '',
+              type,
+              location: {
+                lat: placeLat,
+                lng: placeLng,
+              },
+            });
+          }
         }
-      }
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
     }
   }
 

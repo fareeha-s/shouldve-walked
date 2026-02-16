@@ -57,7 +57,7 @@ export default function Results({ data }: ResultsProps) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="font-mono text-sm md:text-base font-semibold text-[#2c3e50] mb-2">
-                      {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type === 'viewpoint' ? 'landmark' : poi.type === 'art' ? 'art & culture' : poi.type})</span>
+                      {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type === 'viewpoint' ? 'landmark' : poi.type === 'art' ? 'art & culture' : poi.type === 'coffee' ? 'cafe' : poi.type === 'nature' ? 'nature' : poi.type})</span>
                     </div>
                     <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
                   </div>

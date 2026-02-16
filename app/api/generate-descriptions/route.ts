@@ -34,8 +34,11 @@ Examples:
 - the ruins where the sea reclaims what we built
 - a hidden alley alive with decades of colour and story
 - the view from the top that makes the whole city feel small
+- the kind of bookshop where you lose an afternoon and find a first edition
+- where the sourdough has been rising since before you were born
+- a bar so dimly lit you forget what century it is
 
-Write about what makes each place genuinely special — the light, the history, the feeling of being there. Be specific to each place. No generic descriptions.
+Write about what makes each place genuinely special — the light, the history, the feeling of being there. For cafes and shops, describe the atmosphere and what makes them an institution. Be specific to each place. No generic descriptions.
 
 IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match the places list.`;
 
