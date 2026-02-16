@@ -21,7 +21,7 @@ export default function Results({ data }: ResultsProps) {
                 key={index}
                 className="text-sm md:text-base font-mono text-[#2c3e50] leading-relaxed"
               >
-                <span className="font-semibold text-[#e74c3c]">{warning.area}:</span> {warning.warning}
+                {warning.warning}
               </div>
             ))}
           </div>

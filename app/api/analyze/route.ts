@@ -18,48 +18,48 @@ const SKETCHY_AREAS = [
     name: 'tenderloin',
     bounds: { north: 37.7877, south: 37.7805, west: -122.4181, east: -122.4089 },
     warnings: {
-      day: "so you would've walked through the tenderloin. robotaxi gets it",
-      night: "yeah no this part you were absolutely right to waymo"
+      day: "just keep your head on a swivel around here",
+      night: "not the best area to be wandering after dark"
     }
   },
   {
     name: 'mid-market',
     bounds: { north: 37.7840, south: 37.7800, west: -122.4140, east: -122.4080 },
     warnings: {
-      day: "mid-market during the day. character building",
-      night: "mid-market at night. robotaxi was the answer"
+      day: "this stretch can be a bit much",
+      night: "not the vibe for a night stroll"
     }
   },
   {
     name: 'soma (6th st)',
     bounds: { north: 37.7820, south: 37.7750, west: -122.4100, east: -122.4050 },
     warnings: {
-      day: "6th street. you would've had some stories",
-      night: "6th street after dark. waymo was worth every penny"
+      day: "this block has a lot going on",
+      night: "you don't want to be walking here at night"
     }
   },
   {
     name: 'bayview',
     bounds: { north: 37.7350, south: 37.7100, west: -122.3950, east: -122.3700 },
     warnings: {
-      day: "bayview. robotaxi was the right call",
-      night: "bayview at night. robotaxi was absolutely justified"
+      day: "stay aware around this part of the route",
+      night: "definitely not a walking-at-night situation"
     }
   },
   {
     name: 'hunters point',
     bounds: { north: 37.7350, south: 37.7200, west: -122.3850, east: -122.3600 },
     warnings: {
-      day: "hunters point. yeah you made the right call",
-      night: "hunters point after dark. waymo 100%"
+      day: "not the most pedestrian-friendly stretch",
+      night: "hard pass on walking here after dark"
     }
   },
   {
     name: 'western addition',
     bounds: { north: 37.7850, south: 37.7750, west: -122.4350, east: -122.4200 },
     warnings: {
-      day: "parts of western addition can be sketchy. robotaxi was fair",
-      night: "western addition at night. robotaxi was smart"
+      day: "some blocks around here can be iffy",
+      night: "not ideal for a late night walk"
     }
   },
 ];
@@ -538,19 +538,19 @@ function calculateVerdict(
     };
   }
 
-  // TEMPORARILY DISABLED for screenshot - re-enable rain checks later
-  // if (weather.condition === 'rainy' && !hasParks) {
-  //   return {
-  //     worthIt: true,
-  //     reason: `rain + no nice views... ${ride} was totally justified 😔`,
-  //   };
-  // }
-  // if (weather.condition === 'rainy' && hasParks) {
-  //   return {
-  //     worthIt: false,
-  //     reason: 'rainy park walks hit different... you missed that fresh smell 😭',
-  //   };
-  // }
+  // Rain checks
+  if (weather.condition === 'rainy' && !hasParks) {
+    return {
+      worthIt: true,
+      reason: `rain + no nice views... ${ride} was totally justified 😔`,
+    };
+  }
+  if (weather.condition === 'rainy' && hasParks) {
+    return {
+      worthIt: false,
+      reason: 'rainy park walks hit different... you missed that fresh smell 😭',
+    };
+  }
 
   // If it's very hot or very cold
   if (weather.temperature > 85) {
