@@ -61,59 +61,30 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           setter: (value: string) => void,
           validSetter: (valid: boolean) => void
         ) => {
-          console.log('🔍 Place selected:', {
-            name: place.name,
-            formatted_address: place.formatted_address,
-            types: place.types
-          });
-
-          // Accept any specific address: street addresses, establishments, landmarks, etc.
-          const hasSpecificAddress = place.types?.includes('street_address');
-          const hasPremise = place.types?.includes('premise');
-          const hasEstablishment = place.types?.includes('establishment');
-          const hasPointOfInterest = place.types?.includes('point_of_interest');
-          const isPark = place.types?.includes('park');
-          const isRoute = place.types?.includes('route');
-
           // Reject if it's ONLY a generic area (no specific types at all)
           const genericTypes = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country', 'postal_code', 'political', 'geocode'];
           const hasOnlyGenericTypes = place.types?.every(type => genericTypes.includes(type));
 
           if (hasOnlyGenericTypes) {
-            console.log('❌ Rejected: only generic types');
             alert('please enter a specific address or location, not just a city or area');
             setter('');
             validSetter(false);
             return;
           }
 
-          // Smart address construction for API compatibility
-          // For specific places, use name + city to avoid generic addresses
-          const isSpecificPlace = isPark || hasPointOfInterest || hasEstablishment;
-          console.log('📍 Is specific place?', isSpecificPlace, {isPark, hasPointOfInterest, hasEstablishment});
-
-          if (isSpecificPlace && place.name && place.formatted_address) {
-            // Check if formatted_address is too generic (just city name)
-            const cityOnlyPattern = /^San Francisco,?\s*(CA|California)?/i;
-            const isGenericAddress = cityOnlyPattern.test(place.formatted_address);
-            console.log('🏙️ Generic address test:', isGenericAddress, place.formatted_address);
-            
-            if (isGenericAddress) {
-              // Construct better address: "Place Name, San Francisco, CA"
-              const constructedAddress = `${place.name}, San Francisco, CA`;
-              console.log('✅ Setting constructed address:', constructedAddress);
-              setter(constructedAddress);
+          // Just use formatted_address like Google Maps does
+          // Only exception: if it's too generic (just "San Francisco"), construct better address
+          if (place.formatted_address) {
+            const cityOnlyPattern = /^San Francisco,?\s*(CA|California)?\s*$/i;
+            if (cityOnlyPattern.test(place.formatted_address.trim()) && place.name) {
+              // Generic address, construct better one
+              setter(`${place.name}, San Francisco, CA`);
             } else {
-              console.log('✅ Setting formatted_address:', place.formatted_address);
+              // Use what Google provides
               setter(place.formatted_address);
             }
             validSetter(true);
-          } else if (place.formatted_address) {
-            console.log('✅ Fallback to formatted_address:', place.formatted_address);
-            setter(place.formatted_address);
-            validSetter(true);
           } else if (place.name) {
-            console.log('✅ Fallback to name:', place.name);
             setter(place.name);
             validSetter(true);
           }
