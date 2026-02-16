@@ -585,26 +585,25 @@ function calculateHealthStats(distance: number, duration: number) {
   // Average: 100 calories per mile walking
   const caloriesBurned = Math.round(miles * 100);
 
-  // Exercise equivalents
+  // Exercise equivalents - matched by calories burned
   const exerciseEquivalents = [
-    { name: 'one flight of stairs', min: 1, max: 3 },
-    { name: 'a warm-up jog', min: 4, max: 8 },
-    { name: 'a quick yoga flow', min: 9, max: 15 },
-    { name: '20 min HIIT workout', min: 16, max: 25 },
-    { name: '30 min peloton ride', min: 26, max: 35 },
-    { name: '40 min yoga flow', min: 36, max: 44 },
-    { name: '1 SoulCycle class', min: 45, max: 55 },
-    { name: '1 Barry\'s class', min: 56, max: 70 },
-    { name: 'a proper long run', min: 71, max: 90 },
-    { name: 'a half marathon at a chill pace', min: 91, max: 150 },
+    { name: 'walking up one flight of stairs', cal: 5 },
+    { name: 'a 10-minute stretch', cal: 25 },
+    { name: 'a 15-minute walk around the block', cal: 50 },
+    { name: 'a 20-minute yoga flow', cal: 90 },
+    { name: 'a 30-minute Peloton ride', cal: 200 },
+    { name: 'a 45-minute Pilates class', cal: 300 },
+    { name: '1 SoulCycle class', cal: 500 },
+    { name: '1 Barry\'s class', cal: 700 },
+    { name: 'a 10k run', cal: 600 },
+    { name: 'a half marathon', cal: 1200 },
   ];
 
-  const matchingExercise = exerciseEquivalents.find(
-    (e) => walkTimeMinutes >= e.min && walkTimeMinutes <= e.max
-  );
-  const exerciseEquivalent = matchingExercise
-    ? matchingExercise.name
-    : `a ${walkTimeMinutes}-minute workout`;
+  // Find the closest match by calories
+  const sortedByCloseness = [...exerciseEquivalents]
+    .map(e => ({ ...e, diff: Math.abs(e.cal - caloriesBurned) }))
+    .sort((a, b) => a.diff - b.diff);
+  const exerciseEquivalent = sortedByCloseness[0].name;
 
   const exerciseMinutes = walkTimeMinutes;
   const exercisePercentage = Math.min(100, Math.round((exerciseMinutes / 30) * 100));
