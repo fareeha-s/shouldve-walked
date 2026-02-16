@@ -75,6 +75,8 @@ Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
 
 The tone is smart tech twitter. Dry. Sarcastic. Not trying hard. Just stating observations. Think people who've shipped real products, read papers, have opinions on infra. Not YC references. Not junior.
 
+AVOID: Dating jokes, relationship references, romance, going out references. Stick to tech/work/SF life only.
+
 Examples of the vibe:
 - you've spent longer waiting for CI to pass
 - that's one loom video nobody will watch
