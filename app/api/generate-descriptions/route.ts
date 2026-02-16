@@ -64,37 +64,44 @@ IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per lin
 
     // Edge case: Very long walks (over 2 hours)
     if (walkTimeMinutes > 120) {
-      timePrompt = `You are generating absurdly honest time comparisons for a ${walkTimeMinutes} minute (${Math.round(walkTimeMinutes / 60)} hour) walk that someone skipped by taking a robotaxi.
+      timePrompt = `Generate 5 time comparisons for a ${walkTimeMinutes} minute (${Math.round(walkTimeMinutes / 60)} hour) walk someone skipped by taking a robotaxi.
 
-This is an insane distance to walk. The comparisons should highlight how long this is. The walk is LONGER than these things. Dry. Sarcastic. Just stating facts.
+CRITICAL: Each comparison MUST be something that actually takes roughly ${walkTimeMinutes} minutes or less. The walk is LONGER than these things. Be accurate about how long things take.
 
-Examples for ${walkTimeMinutes} minutes:
-- that's longer than your entire CI/CD pipeline
-- you've had shorter oncalls
-- that's a full deploy cycle including rollback
+Tone: dry, deadpan tech/SF life observations. Not trying to be funny. Just stating facts.
 
-IMPORTANT: The ${walkTimeMinutes} minute walk should be LONGER than what you're comparing it to. Don't say "you've spent less time" - that makes no sense.
+Examples of ACCURATE comparisons:
+- for 150 min: "that's longer than most movies you've watched this year"
+- for 180 min: "you could have finished a full technical interview loop"
+- for 200 min: "that's an entire cross-country flight's worth of walking"
 
-Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
+DO NOT exaggerate or make up durations. If you're not sure how long something takes, don't use it.
+
+Return ONLY the comparisons, one per line.`;
     } else {
       // Normal walks
-      timePrompt = `You are generating dry, sarcastic time comparisons for a ${walkTimeMinutes} minute walk that someone skipped by taking a robotaxi in San Francisco.
+      timePrompt = `Generate 5 time comparisons for a ${walkTimeMinutes} minute walk someone skipped by taking a robotaxi in San Francisco.
 
-The tone is smart tech twitter. Dry. Sarcastic. Not trying hard. Just stating observations. Think people who've shipped real products, read papers, have opinions on infra. Not YC references. Not junior.
+CRITICAL: Each comparison MUST be something that genuinely takes about ${walkTimeMinutes} minutes (give or take a few minutes). Be accurate. Do not exaggerate.
 
-AVOID: Dating jokes, relationship references, romance, going out references. Stick to tech/work/SF life only.
+Real-world reference points:
+- 5 min: making a cup of coffee, checking your email
+- 10 min: a short standup meeting, walking to the corner store
+- 15 min: a coffee break, one pomodoro break
+- 20 min: a short podcast episode, waiting for food delivery
+- 25 min: one pomodoro work session, a quick gym warmup
+- 30 min: a lunch break, one episode of a sitcom
+- 40 min: a long meeting, a spin class
+- 45 min: a yoga class, a therapy session
+- 60 min: a proper workout, one episode of prestige TV
 
-Examples of the vibe:
-- you've spent longer waiting for CI to pass
-- that's one loom video nobody will watch
-- you've spent longer in the stripe dashboard today
-- shorter than your average debugging session
-- that's how long you spent choosing a font for your landing page
-- you've scrolled twitter longer than this in the bathroom
+Tone: dry, deadpan tech/SF life observations. Smart but not trying hard. Think people who ship products and have opinions on infra.
 
-Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
+AVOID: Dating/relationship jokes, romance references. Stick to tech/work/SF life.
 
-Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ONLY the comparisons, one per line.`;
+DO NOT say something takes ${walkTimeMinutes} minutes if it actually takes way more or way less. Accuracy matters.
+
+Return ONLY the comparisons, one per line.`;
     }
 
     const timeResponse = await openai.chat.completions.create({
