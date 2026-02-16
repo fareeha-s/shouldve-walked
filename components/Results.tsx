@@ -233,9 +233,8 @@ export default function Results({ data }: ResultsProps) {
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--th-stat-hover-3)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--th-border)'; }}
         >
-          <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--th-text-muted)' }}>would have saved you</div>
-          <div className="text-3xl md:text-5xl font-mono font-bold tracking-tight" style={{ color: 'var(--th-text)' }}>{timeSaved}</div>
-          <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] mt-2" style={{ color: 'var(--th-text-muted)' }}>min by car</div>
+          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight" style={{ color: 'var(--th-text)' }}>{timeSaved}<span className="text-lg md:text-2xl"> min</span></div>
+          <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em]" style={{ color: 'var(--th-text-muted)' }}>saved by car</div>
         </div>
       </section>
     </div>
