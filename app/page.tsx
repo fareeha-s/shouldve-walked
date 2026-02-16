@@ -96,6 +96,18 @@ export default function Home() {
             </div>
           </>
         )}
+
+        {/* Subtle credit */}
+        <div className="mt-20 mb-8 text-center">
+          <a 
+            href="https://fareeha.sh" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[9px] font-mono text-[#c5c5c0] hover:text-[#999] transition-colors tracking-wide opacity-40"
+          >
+            made by Fareeha in the backseat of the robotaxi
+          </a>
+        </div>
       </div>
     </main>
   );
