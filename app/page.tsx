@@ -112,7 +112,7 @@ export default function Home() {
               </div>
               {results.weather.condition !== 'unknown' && (
                 <div className="text-sm font-mono mt-7" style={{ color: 'var(--th-text-label)' }}>
-                  {results.weather.temperature}&deg; &bull; {results.weather.condition === 'foggy' ? 'foggy (karl says hi)' : results.weather.condition}
+                  {results.weather.temperature}&deg;F / {Math.round((results.weather.temperature - 32) * 5 / 9)}&deg;C &bull; {results.weather.condition === 'foggy' ? 'foggy (karl says hi)' : results.weather.condition}
                 </div>
               )}
             </section>
