@@ -21,28 +21,28 @@ export async function POST(request: NextRequest) {
     const openai = getOpenAIClient();
 
     // Generate POI descriptions
-    const poiPrompt = `You are writing warm, wistful one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. The tone is tender but oddly specific. Like someone who loves this city so much they notice strange details nobody else does. Beautiful but with one foot in the absurd.
+    const poiPrompt = `You are writing one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. Factual but with elevated language. You know these places well and you are simply stating what is there. Not trying to be funny or clever. Just describing what you would see, hear, or feel if you walked past.
+
+Occasionally use slightly old-fashioned or formal phrasing — not as a gimmick, just because it fits. Think: someone who reads a lot and it has seeped into how they talk.
 
 Places:
-${places.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
+${places.map((p: any, i: number) => \`\${i + 1}. \${p.name} (\${p.type})\`).join('\n')}
 
-MAXIMUM 12 words. One sentence or fragment. Lowercase. Evocative but slightly strange.
+MAXIMUM 12 words. One sentence or fragment. Lowercase.
 
-Examples of the exact vibe:
-- where the painted victorians catch light like they know you are watching
-- a labyrinth someone built on a cliff and then just... left
-- the parrots own this hill now and they are not subtle about it
-- a staircase made of broken dishes and someone's whole heart
-- the ruins where the ocean is slowly winning
-- sourdough that has been alive longer than your lease
-- a bar so dark your eyes need a full minute to adjust
-- where the fog rolls in and the bridge just disappears mid-sentence
-- the kind of park where strangers share a sunset without talking
-- a bookshop that smells like dust and ambition and 1953
+Examples:
+- where the painted victorians glow amber in the late afternoon light
+- a winding mosaic staircase tucked between quiet gardens
+- the ruins where the sea reclaims what was built
+- an alley given over entirely to colour and declaration
+- the prospect from the summit that diminishes the whole city
+- where the sourdough has been rising since before you were born
+- a bar so dimly lit you forget what century it is
+- the steps are tiled in broken china and someone's devotion
 
-Be SPECIFIC to each place. Reference what actually makes it singular — a texture, a smell, a light, a weird fact. For cafes, what you would actually taste or feel sitting there. For parks, the specific view or the specific silence. For bars, the exact quality of the darkness.
+State what is actually there. A view, a smell, a material, a history. For cafes, say what they actually serve or what the room feels like. For parks, say what you see from them. For bars, say what it is like inside. For murals, say what is depicted or how the paint sits on the wall.
 
-NEVER use: hidden gem, tucked away, nestled, charming, vibrant, bustling, quaint, iconic. These words are dead. If the description could apply to any city, rewrite it until it could only be San Francisco.
+Do not try to be poetic. Just be precise and the rest follows.
 
 IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match.`;
 
