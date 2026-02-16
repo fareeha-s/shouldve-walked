@@ -37,9 +37,7 @@ Examples:
 - ancient cypress trees you'll never walk under
 - blooming jacarandas lining the whole street
 
-For parks and natural features, mention the actual trees, flowers, greenery, or wildlife when relevant. SF has incredible urban nature — eucalyptus groves, cypress trees, succulents, hummingbirds, red-tailed hawks. Make people feel what they missed.
-
-Focus on what's actually special or beautiful about each place. Keep it real and simple.
+Focus on what's actually special, unique, or beautiful about each place. Prioritize what makes it a must-see — history, architecture, views, art, hidden stories. Only mention trees/plants/greenery if the place is literally a garden or botanical space, not for regular parks.
 
 IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match the places list.`;
 

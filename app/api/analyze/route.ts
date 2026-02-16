@@ -249,7 +249,9 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
     return startDist < threshold || endDist < threshold;
   };
 
-  // Check for SF landmarks along the route
+  // Check for SF landmarks along the route (with priority tracking)
+  const landmarkMatches: Array<PointOfInterest & { priority: number }> = [];
+
   for (const step of steps) {
     const lat = step.start_location.lat;
     const lng = step.start_location.lng;
@@ -259,19 +261,30 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
         Math.pow(lat - landmark.lat, 2) + Math.pow(lng - landmark.lng, 2)
       );
 
-      // Only add if it's along the route AND not at start/end points
       if (distance < landmark.radius &&
           !seenPlaces.has(landmark.name) &&
           !isTooCloseToStartOrEnd(landmark.lat, landmark.lng)) {
         seenPlaces.add(landmark.name);
-        places.push({
+        landmarkMatches.push({
           name: landmark.name,
-          description: '', // Will be filled by LLM
+          description: '',
           type: landmark.type,
           location: { lat: landmark.lat, lng: landmark.lng },
+          priority: landmark.priority,
         });
       }
     }
+  }
+
+  // Sort by priority (famous first, then hidden gems, then nature)
+  landmarkMatches.sort((a, b) => a.priority - b.priority);
+
+  // Only include priority 3 (nature/gardens) if we have fewer than 3 from priorities 1-2
+  const goodMatches = landmarkMatches.filter(m => m.priority <= 2);
+  if (goodMatches.length >= 3) {
+    places.push(...goodMatches);
+  } else {
+    places.push(...landmarkMatches);
   }
 
   // If we found fewer than 3 landmarks, look for interesting local places (not chains)
@@ -326,7 +339,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
     }
   }
 
-  // Limit to 5 places max
+  // Limit to 7 places max
   return places.slice(0, 7);
 }
 

@@ -61,14 +61,16 @@ export default function Results({ data }: ResultsProps) {
                     </div>
                     <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
                   </div>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name)}&query_place_id=${poi.location.lat},${poi.location.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-shrink-0 px-3 py-1.5 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors text-xs font-mono font-semibold uppercase"
-                  >
-                    view
-                  </a>
+                  {poi.type !== 'nature' && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name)}&query_place_id=${poi.location.lat},${poi.location.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0 px-3 py-1.5 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors text-xs font-mono font-semibold uppercase"
+                    >
+                      view
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
