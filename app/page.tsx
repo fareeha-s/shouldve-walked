@@ -136,7 +136,7 @@ export default function Home() {
             className="text-[11px] font-mono tracking-wider transition-colors"
             style={{ color: 'var(--th-text-faint)' }}
           >
-            made by Fareeha in the backseat of the robotaxi
+            made by Fareeha in the backseat of the robotaxi ♡
           </a>
           <div className="flex justify-center">
             <ThemeSwitcher current={theme} onChange={handleThemeChange} />
