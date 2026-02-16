@@ -12,11 +12,29 @@ export default function Home() {
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeName>('paper');
+  const [loadingMsg, setLoadingMsg] = useState(0);
+
+  const loadingMessages = [
+    'calculating what you missed...',
+    'judging your life choices...',
+    'consulting the fog...',
+    'asking karl for directions...',
+    'counting the hills you skipped...',
+    'checking if it was worth it...',
+  ];
 
   useEffect(() => {
     const saved = localStorage.getItem('sihw-theme') as ThemeName;
     if (saved && themes[saved]) setTheme(saved);
   }, []);
+
+  useEffect(() => {
+    if (!loading) { setLoadingMsg(0); return; }
+    const interval = setInterval(() => {
+      setLoadingMsg((prev) => (prev + 1) % loadingMessages.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const handleThemeChange = (t: ThemeName) => {
     setTheme(t);
@@ -73,9 +91,26 @@ export default function Home() {
         {!results && !loading && <AddressInput onAnalyze={handleAnalyze} loading={loading} />}
 
         {loading && (
-          <div className="mt-12 md:mt-16 text-center">
-            <div className="inline-block animate-pulse font-mono text-sm" style={{ color: 'var(--th-text)' }}>
-              calculating what you missed...
+          <div className="mt-16 md:mt-24 text-center space-y-6">
+            <div className="inline-flex gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 rounded-full animate-bounce"
+                  style={{
+                    backgroundColor: 'var(--th-text)',
+                    animationDelay: `${i * 0.15}s`,
+                    animationDuration: '0.8s',
+                  }}
+                />
+              ))}
+            </div>
+            <div
+              className="font-mono text-sm transition-opacity duration-500"
+              style={{ color: 'var(--th-text-muted)' }}
+              key={loadingMsg}
+            >
+              {loadingMessages[loadingMsg]}
             </div>
           </div>
         )}
