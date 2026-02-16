@@ -12,7 +12,7 @@ const BAY_AREA_BOUNDS = {
   east: -121.2,   // East of Livermore
 };
 
-// SF sketchy areas for safety warnings
+// SF sketchy areas for safety warnings  
 const SKETCHY_AREAS = [
   {
     name: 'tenderloin',
@@ -36,6 +36,30 @@ const SKETCHY_AREAS = [
     warnings: {
       day: "6th street. you would've had some stories",
       night: "6th street after dark. your waymo fare was worth every penny"
+    }
+  },
+  {
+    name: 'bayview',
+    bounds: { north: 37.7350, south: 37.7100, west: -122.3950, east: -122.3700 },
+    warnings: {
+      day: "bayview. waymo was the right call",
+      night: "bayview at night. absolutely waymo was justified"
+    }
+  },
+  {
+    name: 'hunters point',
+    bounds: { north: 37.7350, south: 37.7200, west: -122.3850, east: -122.3600 },
+    warnings: {
+      day: "hunters point. yeah you made the right choice",
+      night: "hunters point after dark. waymo 100%"
+    }
+  },
+  {
+    name: 'western addition',
+    bounds: { north: 37.7850, south: 37.7750, west: -122.4350, east: -122.4200 },
+    warnings: {
+      day: "parts of western addition can be sketchy. waymo was fair",
+      night: "western addition at night. waymo was smart"
     }
   },
 ];
@@ -384,6 +408,24 @@ function calculateVerdict(
     };
   }
 
+  // SAFETY FIRST - ALWAYS check dangerous areas before anything else
+  // Edge case: Multiple sketchy areas (crime scene tour)
+  if (safetyWarnings.length > 2) {
+    return {
+      worthIt: true,
+      reason: 'that route goes through multiple sketchy areas... waymo saved you 💀',
+    };
+  }
+
+  // If there are ANY safety warnings, ALWAYS say waymo was worth it
+  if (safetyWarnings.length > 0) {
+    const areas = safetyWarnings.map(w => w.area).join(' and ');
+    return {
+      worthIt: true,
+      reason: `walking through ${areas}? waymo was the right move`,
+    };
+  }
+
   // Edge case: Absurdly long walks (over 2 hours)
   if (walkTimeMinutes > 120) {
     return {
@@ -397,23 +439,6 @@ function calculateVerdict(
     return {
       worthIt: true,
       reason: 'this would\'ve been more exercise than most people get in a week... 😭',
-    };
-  }
-
-  // Edge case: Multiple sketchy areas (crime scene tour)
-  if (safetyWarnings.length > 2) {
-    return {
-      worthIt: true,
-      reason: 'that route goes through multiple sketchy areas... waymo saved you 💀',
-    };
-  }
-
-  // If there are safety warnings, ALWAYS say waymo was worth it
-  if (safetyWarnings.length > 0) {
-    const areas = safetyWarnings.map(w => w.area).join(' and ');
-    return {
-      worthIt: true,
-      reason: `walking through ${areas}? waymo was the right move`,
     };
   }
 
