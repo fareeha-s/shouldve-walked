@@ -901,22 +901,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get weather
+    // Run weather, neighborhoods, and places in parallel (all depend only on directions)
     const midLat = (directions.steps[0].start_location.lat + directions.steps[directions.steps.length - 1].end_location.lat) / 2;
     const midLng = (directions.steps[0].start_location.lng + directions.steps[directions.steps.length - 1].end_location.lng) / 2;
-    const weather = await getWeather(midLat, midLng);
-
-    // Get neighborhoods along route
-    const neighborhoods = await getNeighborhoodsAlongRoute(directions.steps);
-
-    // Get start and end locations for filtering POIs
     const startLat = directions.steps[0].start_location.lat;
     const startLng = directions.steps[0].start_location.lng;
     const endLat = directions.steps[directions.steps.length - 1].end_location.lat;
     const endLng = directions.steps[directions.steps.length - 1].end_location.lng;
 
-    // Get places along route (excluding start/end points)
-    const places = await getPlacesAlongRoute(directions.steps, startLat, startLng, endLat, endLng);
+    const [weather, neighborhoods, places] = await Promise.all([
+      getWeather(midLat, midLng),
+      getNeighborhoodsAlongRoute(directions.steps),
+      getPlacesAlongRoute(directions.steps, startLat, startLng, endLat, endLng),
+    ]);
 
     // Generate descriptions for places using LLM
     const response = await fetch(`${request.nextUrl.origin}/api/generate-descriptions`, {
