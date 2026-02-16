@@ -60,9 +60,6 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           
           if (!place.formatted_address) return;
           
-          // If the place name isn't in the formatted address, prepend it
-          // e.g. "Dolores Park" + "San Francisco, CA, USA" -> "Dolores Park, San Francisco, CA, USA"
-          // but "123 Main St" + "123 Main St, SF, CA" stays as-is
           if (place.name && !place.formatted_address.toLowerCase().includes(place.name.toLowerCase())) {
             return `${place.name}, ${place.formatted_address}`;
           }
@@ -75,7 +72,6 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           if (address) {
             setPickup(address);
             setPickupValid(true);
-            // Override Google's DOM manipulation with our corrected address
             if (pickupInputRef.current) pickupInputRef.current.value = address;
             setTimeout(() => {
               if (pickupInputRef.current) pickupInputRef.current.value = address;
@@ -88,7 +84,6 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           if (address) {
             setDropoff(address);
             setDropoffValid(true);
-            // Override Google's DOM manipulation with our corrected address
             if (dropoffInputRef.current) dropoffInputRef.current.value = address;
             setTimeout(() => {
               if (dropoffInputRef.current) dropoffInputRef.current.value = address;
@@ -117,7 +112,7 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
       <div>
-        <label htmlFor="pickup" className="block text-xs font-mono text-[#7f8c8d] mb-2 uppercase tracking-[0.2em]">
+        <label htmlFor="pickup" className="block text-xs font-mono mb-2 uppercase tracking-[0.2em]" style={{ color: 'var(--th-input-label)' }}>
           pickup
         </label>
         <input
@@ -127,16 +122,21 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           value={pickup}
           onChange={(e) => {
             setPickup(e.target.value);
-            setPickupValid(false); // Invalidate when manually typing
+            setPickupValid(false);
           }}
           placeholder="dolores park, ferry building, blue bottle..."
-          className="w-full bg-white border-[3px] border-black px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none focus:border-[#3498db] transition-all placeholder:text-[#bdc3c7]"
+          className="w-full px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none transition-all"
+          style={{
+            backgroundColor: 'var(--th-surface)',
+            border: '3px solid var(--th-border)',
+            color: 'var(--th-text)',
+          }}
           disabled={loading}
         />
       </div>
 
       <div>
-        <label htmlFor="dropoff" className="block text-xs font-mono text-[#7f8c8d] mb-2 uppercase tracking-[0.2em]">
+        <label htmlFor="dropoff" className="block text-xs font-mono mb-2 uppercase tracking-[0.2em]" style={{ color: 'var(--th-input-label)' }}>
           dropoff
         </label>
         <input
@@ -146,10 +146,15 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           value={dropoff}
           onChange={(e) => {
             setDropoff(e.target.value);
-            setDropoffValid(false); // Invalidate when manually typing
+            setDropoffValid(false);
           }}
           placeholder="civic center, tartine, where you needed to be..."
-          className="w-full bg-white border-[3px] border-black px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none focus:border-[#3498db] transition-all placeholder:text-[#bdc3c7]"
+          className="w-full px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none transition-all"
+          style={{
+            backgroundColor: 'var(--th-surface)',
+            border: '3px solid var(--th-border)',
+            color: 'var(--th-text)',
+          }}
           disabled={loading}
         />
       </div>
@@ -157,7 +162,12 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
       <button
         type="submit"
         disabled={!pickup || !dropoff || !pickupValid || !dropoffValid || loading}
-        className="w-full bg-black text-white py-3 md:py-4 px-6 font-mono text-sm md:text-base font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2c3e50] hover:scale-[1.02] active:scale-[0.98] transition-all border-[3px] border-black uppercase tracking-wide"
+        className="w-full py-3 md:py-4 px-6 font-mono text-sm md:text-base font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-wide"
+        style={{
+          backgroundColor: 'var(--th-btn)',
+          color: 'var(--th-btn-text)',
+          border: '3px solid var(--th-border)',
+        }}
       >
         {loading ? 'calculating...' : 'go'}
       </button>

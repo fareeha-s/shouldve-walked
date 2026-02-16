@@ -1,14 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddressInput from '@/components/AddressInput';
 import Results from '@/components/Results';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 import type { AnalysisResult } from '@/lib/types';
+import { type ThemeName, themes } from '@/lib/themes';
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [theme, setTheme] = useState<ThemeName>('paper');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('sihw-theme') as ThemeName;
+    if (saved && themes[saved]) setTheme(saved);
+  }, []);
+
+  const handleThemeChange = (t: ThemeName) => {
+    setTheme(t);
+    localStorage.setItem('sihw-theme', t);
+  };
 
   const handleAnalyze = async (pickup: string, dropoff: string) => {
     setLoading(true);
@@ -38,13 +51,23 @@ export default function Home() {
     }
   };
 
+  const themeVars = themes[theme].vars;
+
   return (
-    <main className="min-h-screen bg-[#f5f5f0] text-black">
+    <main
+      className="min-h-screen transition-colors duration-300"
+      style={{
+        ...themeVars as React.CSSProperties,
+        backgroundColor: 'var(--th-bg)',
+        color: 'var(--th-text)',
+      }}
+    >
       <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-16 lg:py-24">
-        <div className="mb-12 md:mb-20 border-b-[3px] border-black pb-6 md:pb-8">
+        <div className="mb-12 md:mb-20 pb-6 md:pb-8 flex items-end justify-between" style={{ borderBottom: '3px solid var(--th-border)' }}>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-mono tracking-[-0.02em] font-bold leading-[0.9] uppercase">
             should i have walked.
           </h1>
+          <ThemeSwitcher current={theme} onChange={handleThemeChange} />
         </div>
 
         {/* Show input at top only if no results yet */}
@@ -52,32 +75,45 @@ export default function Home() {
 
         {loading && (
           <div className="mt-12 md:mt-16 text-center">
-            <div className="inline-block animate-pulse font-mono text-black text-sm">
+            <div className="inline-block animate-pulse font-mono text-sm" style={{ color: 'var(--th-text)' }}>
               calculating what you missed...
             </div>
           </div>
         )}
 
         {error && !loading && (
-          <div className="mt-12 md:mt-16 border-l-[4px] border-[#e74c3c] pl-4 md:pl-6 py-4 bg-[#fff5f5]">
-            <div className="font-mono text-sm md:text-base text-[#e74c3c] font-bold">{error}</div>
+          <div className="mt-12 md:mt-16 py-4" style={{ borderLeft: '4px solid var(--th-error)', paddingLeft: '1.5rem', backgroundColor: 'var(--th-error-bg)' }}>
+            <div className="font-mono text-sm md:text-base font-bold" style={{ color: 'var(--th-error)' }}>{error}</div>
           </div>
         )}
 
         {/* Show verdict first, then all results */}
         {results && !loading && (
           <>
-            <section className={`mb-12 md:mb-16 text-center py-12 md:py-20 border-[3px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${results.verdict.worthIt ? 'border-[#27ae60] bg-gradient-to-br from-[#e8f8f0] to-[#d5f4e6]' : 'border-[#f39c12] bg-gradient-to-br from-[#fef9f3] to-[#fdecd0]'}`}>
-              <div className="text-[#888] font-mono text-xs uppercase tracking-[0.25em] mb-3">should you have walked?</div>
-              <div className={`text-5xl md:text-7xl lg:text-8xl font-mono font-bold tracking-tight mb-4 ${results.verdict.worthIt ? 'text-[#27ae60]' : 'text-[#e67e22]'}`}>
+            <section
+              className="mb-12 md:mb-16 text-center py-12 md:py-20"
+              style={{
+                border: `3px solid ${results.verdict.worthIt ? 'var(--th-text-label)' : '#27ae60'}`,
+                boxShadow: 'var(--th-shadow-lg)',
+                backgroundColor: results.verdict.worthIt ? 'var(--th-surface-alt)' : 'rgba(39,174,96,0.08)',
+              }}
+            >
+              <div className="font-mono text-xs uppercase tracking-[0.25em] mb-3" style={{ color: 'var(--th-text-label)' }}>should you have walked?</div>
+              <div
+                className="text-5xl md:text-7xl lg:text-8xl font-mono font-bold tracking-tight mb-4"
+                style={{ color: results.verdict.worthIt ? 'var(--th-text-label)' : '#27ae60' }}
+              >
                 {results.verdict.worthIt ? 'no.' : 'yes.'}
               </div>
-              <div className={`text-base md:text-xl lg:text-2xl font-serif leading-relaxed px-4 ${results.verdict.worthIt ? 'text-[#27ae60]/80' : 'text-[#e67e22]/80'}`}>
+              <div
+                className="text-base md:text-xl lg:text-2xl font-serif italic leading-relaxed px-4"
+                style={{ color: results.verdict.worthIt ? 'var(--th-text-faint)' : 'rgba(39,174,96,0.7)' }}
+              >
                 {results.verdict.reason}
               </div>
               {results.weather.condition !== 'unknown' && (
-                <div className="text-sm font-mono text-[#666] mt-7">
-                  {results.weather.temperature}° • {results.weather.condition === 'foggy' ? 'foggy (karl says hi)' : results.weather.condition}
+                <div className="text-sm font-mono mt-7" style={{ color: 'var(--th-text-label)' }}>
+                  {results.weather.temperature}&deg; &bull; {results.weather.condition === 'foggy' ? 'foggy (karl says hi)' : results.weather.condition}
                 </div>
               )}
             </section>
@@ -85,8 +121,8 @@ export default function Home() {
             <Results data={results} />
 
             {/* Try another route at bottom */}
-            <div className="mt-16 md:mt-20 pt-16 md:pt-20 border-t-[3px] border-black">
-              <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-6 text-center">try a different route</h2>
+            <div className="mt-16 md:mt-20 pt-16 md:pt-20" style={{ borderTop: '3px solid var(--th-border)' }}>
+              <h2 className="text-xs font-mono uppercase tracking-[0.25em] mb-6 text-center" style={{ color: 'var(--th-text-label)' }}>try a different route</h2>
               <AddressInput onAnalyze={handleAnalyze} loading={false} />
             </div>
           </>
@@ -98,7 +134,8 @@ export default function Home() {
             href="https://x.com/fareehasala/status/2022844579331105191?s=20" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-[11px] font-mono text-[#999] hover:text-[#666] transition-colors tracking-wider"
+            className="text-[11px] font-mono tracking-wider transition-colors"
+            style={{ color: 'var(--th-text-faint)' }}
           >
             made by Fareeha in the backseat of the robotaxi
           </a>

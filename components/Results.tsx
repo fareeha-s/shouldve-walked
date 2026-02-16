@@ -7,19 +7,69 @@ interface ResultsProps {
   data: AnalysisResult;
 }
 
+function typeBorderColor(type: string) {
+  switch (type) {
+    case 'viewpoint': return '#c0813d';
+    case 'park': return '#4a8c5c';
+    case 'nature': return '#5a9e6f';
+    case 'coffee': return '#8b6b4a';
+    case 'bar': return '#7a5082';
+    case 'art': return '#4a7a9e';
+    case 'mural': return '#9e5a6f';
+    case 'restaurant': return '#b5634b';
+    default: return 'var(--th-border)';
+  }
+}
+
+function TypeIcon({ type }: { type: string }) {
+  const size = 14;
+  const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+
+  switch (type) {
+    case 'viewpoint':
+      return <svg {...common}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>;
+    case 'park':
+      return <svg {...common}><path d="M12 22V13"/><path d="M7 13l5-8 5 8H7z"/><path d="M9 9l3-5 3 5"/></svg>;
+    case 'nature':
+      return <svg {...common}><path d="M6 21c3-3 7-4 12-9C13 7 9 6 6 3c-1 6-1 12 0 18z"/><path d="M6 21c3-5 6-8 12-9"/></svg>;
+    case 'coffee':
+      return <svg {...common}><path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>;
+    case 'bar':
+      return <svg {...common}><line x1="12" y1="14" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/><path d="M4 2h16l-6 12H10L4 2z"/></svg>;
+    case 'art':
+      return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/></svg>;
+    case 'mural':
+      return <svg {...common}><path d="M18.37 2.63a2.12 2.12 0 013 3L14 13l-4 1 1-4 7.37-7.37z"/><path d="M3 17v4h4l-1-2-3-2z"/></svg>;
+    case 'restaurant':
+      return <svg {...common}><line x1="8" y1="2" x2="8" y2="22"/><path d="M4 2v6c0 2 2 4 4 4"/><path d="M12 2v6c0 2-2 4-4 4"/><path d="M18 2l-2 10h4L18 2z"/><line x1="18" y1="12" x2="18" y2="22"/></svg>;
+    default:
+      return <svg {...common}><circle cx="12" cy="12" r="4"/></svg>;
+  }
+}
+
 export default function Results({ data }: ResultsProps) {
+  const timeSaved = data.healthStats.walkTimeMinutes - data.healthStats.waymoTimeMinutes;
+
   return (
     <div className="mt-12 md:mt-20 space-y-8 md:space-y-16 animate-in fade-in duration-500">
 
       {/* Safety Warnings - Show first if exists */}
       {data.safetyWarnings.length > 0 && (
-        <section className="border-[3px] border-[#e74c3c] bg-gradient-to-br from-[#fff5f5] to-[#ffe8e6] p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-base md:text-lg font-mono font-semibold mb-4 md:mb-6 text-[#c0392b] uppercase tracking-[0.2em]">real talk though</h2>
+        <section
+          className="p-6 md:p-10"
+          style={{
+            border: '3px solid var(--th-error)',
+            backgroundColor: 'var(--th-error-bg)',
+            boxShadow: 'var(--th-shadow-lg)',
+          }}
+        >
+          <h2 className="text-base md:text-lg font-mono font-semibold mb-4 md:mb-6 uppercase tracking-[0.2em]" style={{ color: 'var(--th-error)' }}>real talk though</h2>
           <div className="space-y-3">
             {data.safetyWarnings.map((warning, index) => (
               <div
                 key={index}
-                className="text-sm md:text-base font-mono text-[#2c3e50] leading-relaxed"
+                className="text-sm md:text-base font-mono leading-relaxed"
+                style={{ color: 'var(--th-text-sec)' }}
               >
                 {warning.warning}
               </div>
@@ -30,33 +80,52 @@ export default function Results({ data }: ResultsProps) {
 
       {/* Map with walk time overlay */}
       <section className="relative">
-        <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-5">the route</h2>
+        <h2 className="text-xs font-mono uppercase tracking-[0.25em] mb-5" style={{ color: 'var(--th-text-label)' }}>the route</h2>
         <div className="relative">
           <RouteMap data={data} />
-          <div className="absolute bottom-4 right-4 bg-white border-[3px] border-black px-4 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <div className="text-2xl md:text-3xl font-mono font-bold tracking-tight text-black leading-none">
+          <div
+            className="absolute bottom-4 right-4 px-4 py-3"
+            style={{
+              backgroundColor: 'var(--th-surface)',
+              border: '3px solid var(--th-border)',
+              boxShadow: 'var(--th-shadow-sm)',
+            }}
+          >
+            <div className="text-2xl md:text-3xl font-mono font-bold tracking-tight leading-none" style={{ color: 'var(--th-text)' }}>
               {data.healthStats.walkTimeMinutes}
             </div>
-            <div className="text-[10px] font-mono text-[#888] uppercase tracking-[0.2em] mt-1">
+            <div className="text-[10px] font-mono uppercase tracking-[0.2em] mt-1" style={{ color: 'var(--th-text-label)' }}>
               min walk
             </div>
           </div>
         </div>
+        {data.timeComparisons.length > 0 && data.timeComparisons[0].text && (
+          <div className="mt-3 text-xs md:text-sm font-mono text-right" style={{ color: 'var(--th-text-label)' }}>
+            {data.timeComparisons[0].text}
+          </div>
+        )}
       </section>
 
       {/* Points of Interest */}
       {data.pointsOfInterest.length > 0 ? (
         <section>
-          <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-6">what you missed</h2>
-          {/* Mobile: stacked list / Desktop: grid of boxes */}
+          <h2 className="text-xs font-mono uppercase tracking-[0.25em] mb-6" style={{ color: 'var(--th-text-label)' }}>what you missed</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {data.pointsOfInterest.map((poi, index) => (
               <div
                 key={index}
-                className="border-[3px] border-black bg-white p-4 md:p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all flex flex-col"
+                className="p-4 md:p-5 transition-all flex flex-col hover:translate-x-[-2px] hover:translate-y-[-2px]"
+                style={{
+                  border: `3px solid ${typeBorderColor(poi.type)}`,
+                  backgroundColor: 'var(--th-surface)',
+                  boxShadow: 'var(--th-shadow-sm)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--th-shadow-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--th-shadow-sm)'; }}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="font-mono text-sm font-semibold text-[#2c3e50] leading-tight">
+                  <div className="flex items-center gap-1.5 font-mono text-sm font-semibold leading-tight" style={{ color: 'var(--th-text-sec)' }}>
+                    <span className="flex-shrink-0" style={{ color: typeBorderColor(poi.type) }}><TypeIcon type={poi.type} /></span>
                     {poi.name}
                   </div>
                   {poi.type !== 'nature' && (
@@ -64,41 +133,51 @@ export default function Results({ data }: ResultsProps) {
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name + " San Francisco")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-6 h-6 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors flex items-center justify-center text-[10px]"
+                      className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-[10px] transition-colors"
                       title="view on map"
+                      style={{
+                        border: '2px solid var(--th-border)',
+                        backgroundColor: 'var(--th-surface)',
+                        color: 'var(--th-text)',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--th-link-hover)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--th-surface)'; }}
                     >
                       &#8599;
                     </a>
                   )}
                 </div>
-                <div className="text-[10px] font-mono text-[#999] uppercase tracking-[0.15em] mb-2">
-                  {poi.type === 'viewpoint' ? 'landmark' : poi.type === 'art' ? 'art & culture' : poi.type === 'coffee' ? 'cafe' : poi.type === 'nature' ? 'nature' : poi.type}
-                </div>
-                <div className="text-xs text-[#555] leading-relaxed mt-auto">{poi.description}</div>
+                <div className="text-sm font-serif italic leading-relaxed mt-1" style={{ color: 'var(--th-text-muted)' }}>{poi.description}</div>
               </div>
             ))}
 
-            {/* Also missed: exercise and time */}
-            <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#fef9f3] p-6 md:p-8 mt-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-base md:text-lg font-mono font-semibold text-[#2c3e50] mb-4">
-                also missed
+            {/* Exercise equivalent card */}
+            <div
+              className="p-4 md:p-5 flex flex-col justify-center"
+              style={{
+                border: '3px solid var(--th-border)',
+                backgroundColor: 'var(--th-surface-warm)',
+                boxShadow: 'var(--th-shadow-sm)',
+              }}
+            >
+              <div className="text-[10px] font-mono uppercase tracking-[0.15em] mb-2" style={{ color: 'var(--th-text-faint)' }}>
+                exercise skipped
               </div>
-              <div className="space-y-3">
-                <div className="text-lg md:text-xl font-mono text-black leading-relaxed">
-                  {data.healthStats.exerciseEquivalent}
-                </div>
-                {data.timeComparisons.length > 0 && data.timeComparisons[0].text && (
-                  <div className="text-sm md:text-base font-mono text-[#7f8c8d] leading-relaxed">
-                    {data.timeComparisons[0].text}
-                  </div>
-                )}
+              <div className="text-sm md:text-base font-mono leading-relaxed" style={{ color: 'var(--th-text-sec)' }}>
+                the equivalent of {data.healthStats.exerciseEquivalent} — {data.healthStats.caloriesBurned} cal
               </div>
             </div>
           </div>
         </section>
       ) : (
-        <section className="text-center py-10 border-[3px] border-dashed border-[#bdc3c7] bg-[#f8f9fa]">
-          <div className="text-sm font-mono text-[#7f8c8d]">
+        <section
+          className="text-center py-10"
+          style={{
+            border: '3px dashed var(--th-text-faint)',
+            backgroundColor: 'var(--th-surface-alt)',
+          }}
+        >
+          <div className="text-sm font-mono" style={{ color: 'var(--th-text-label)' }}>
             you missed: nothing. just beige buildings and parked cars
           </div>
         </section>
@@ -107,12 +186,19 @@ export default function Results({ data }: ResultsProps) {
       {/* Neighborhoods */}
       {data.neighborhoods.length > 0 && (
         <section>
-          <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-5">neighborhoods</h2>
+          <h2 className="text-xs font-mono uppercase tracking-[0.25em] mb-5" style={{ color: 'var(--th-text-label)' }}>neighborhoods</h2>
           <div className="grid grid-cols-2 md:flex md:justify-center gap-2 md:gap-3">
             {data.neighborhoods.map((neighborhood, index) => (
               <div
                 key={index}
-                className="px-3 md:px-4 py-2 md:py-2.5 border-[3px] border-black bg-white font-mono text-xs md:text-sm font-semibold hover:bg-[#f1c40f] hover:border-[#f39c12] transition-all text-center"
+                className="px-3 md:px-4 py-2 md:py-2.5 font-mono text-xs md:text-sm font-semibold transition-all text-center"
+                style={{
+                  border: '3px solid var(--th-border)',
+                  backgroundColor: 'var(--th-surface)',
+                  color: 'var(--th-text)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--th-link-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--th-surface)'; }}
               >
                 {neighborhood}
               </div>
@@ -122,18 +208,33 @@ export default function Results({ data }: ResultsProps) {
       )}
 
       {/* Key stats at bottom */}
-      <section className="grid grid-cols-3 gap-3 md:gap-4">
-        <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#f8f8f8] p-4 md:p-6 text-center hover:border-[#e67e22] transition-colors shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight">{data.healthStats.steps.toLocaleString()}</div>
-          <div className="text-[10px] md:text-xs font-mono text-[#555] uppercase tracking-[0.2em]">steps missed</div>
+      <section className="grid grid-cols-2 gap-3 md:gap-4">
+        <div
+          className="p-4 md:p-6 text-center transition-colors"
+          style={{
+            border: '3px solid var(--th-border)',
+            backgroundColor: 'var(--th-surface)',
+            boxShadow: 'var(--th-shadow-lg)',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--th-stat-hover-1)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--th-border)'; }}
+        >
+          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight" style={{ color: 'var(--th-text)' }}>{data.healthStats.steps.toLocaleString()}</div>
+          <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em]" style={{ color: 'var(--th-text-muted)' }}>steps missed</div>
         </div>
-        <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#f8f8f8] p-4 md:p-6 text-center hover:border-[#9b59b6] transition-colors shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight">{data.healthStats.caloriesBurned}</div>
-          <div className="text-[10px] md:text-xs font-mono text-[#555] uppercase tracking-[0.2em]">cal not burned</div>
-        </div>
-        <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#f8f8f8] p-4 md:p-6 text-center hover:border-[#27ae60] transition-colors shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight">{data.healthStats.waymoTimeMinutes}</div>
-          <div className="text-[10px] md:text-xs font-mono text-[#555] uppercase tracking-[0.2em]">min saved</div>
+        <div
+          className="p-4 md:p-6 text-center transition-colors"
+          style={{
+            border: '3px solid var(--th-border)',
+            backgroundColor: 'var(--th-surface)',
+            boxShadow: 'var(--th-shadow-lg)',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--th-stat-hover-3)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--th-border)'; }}
+        >
+          <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--th-text-muted)' }}>would have saved you</div>
+          <div className="text-3xl md:text-5xl font-mono font-bold tracking-tight" style={{ color: 'var(--th-text)' }}>{timeSaved}</div>
+          <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] mt-2" style={{ color: 'var(--th-text-muted)' }}>min by car</div>
         </div>
       </section>
     </div>
