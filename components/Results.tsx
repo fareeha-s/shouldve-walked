@@ -57,13 +57,13 @@ export default function Results({ data }: ResultsProps) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="font-mono text-sm md:text-base font-semibold text-[#2c3e50] mb-2">
-                      {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type})</span>
+                      {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type === 'viewpoint' ? 'landmark' : poi.type === 'art' ? 'art & culture' : poi.type})</span>
                     </div>
                     <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
                   </div>
                   {poi.type !== 'nature' && (
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name)}&query_place_id=${poi.location.lat},${poi.location.lng}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name + " San Francisco")}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-shrink-0 px-3 py-1.5 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors text-xs font-mono font-semibold uppercase"

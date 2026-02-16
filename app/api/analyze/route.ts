@@ -161,19 +161,19 @@ const SF_LANDMARKS = [
   // Parks and nature
   { name: 'Dolores Park', lat: 37.7596, lng: -122.4269, type: 'park' as const, radius: 0.005 , priority: 1 },
   { name: 'Golden Gate Park', lat: 37.7694, lng: -122.4862, type: 'park' as const, radius: 0.01 , priority: 1 },
-  { name: 'Lands End Trail', lat: 37.7859, lng: -122.5089, type: 'nature' as const, radius: 0.004 , priority: 3 },
+  { name: 'Lands End Trail', lat: 37.7859, lng: -122.5089, type: 'nature' as const, radius: 0.004 , priority: 1 },
   { name: 'Bernal Heights Hill', lat: 37.7416, lng: -122.4163, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
   { name: 'Tank Hill', lat: 37.7537, lng: -122.4481, type: 'viewpoint' as const, radius: 0.002 , priority: 1 },
-  { name: 'Fort Funston', lat: 37.7133, lng: -122.5025, type: 'nature' as const, radius: 0.005 , priority: 3 },
-  { name: 'Glen Canyon Park', lat: 37.7394, lng: -122.4413, type: 'nature' as const, radius: 0.004 , priority: 3 },
+  { name: 'Fort Funston', lat: 37.7133, lng: -122.5025, type: 'nature' as const, radius: 0.005 , priority: 2 },
+  { name: 'Glen Canyon Park', lat: 37.7394, lng: -122.4413, type: 'nature' as const, radius: 0.004 , priority: 2 },
   { name: 'McLaren Park', lat: 37.7183, lng: -122.4213, type: 'park' as const, radius: 0.005 , priority: 1 },
   { name: 'Buena Vista Park', lat: 37.7696, lng: -122.4413, type: 'park' as const, radius: 0.003 , priority: 1 },
   { name: 'Corona Heights', lat: 37.7654, lng: -122.4387, type: 'viewpoint' as const, radius: 0.002 , priority: 1 },
   { name: 'Twin Peaks', lat: 37.7544, lng: -122.4477, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
-  { name: 'Presidio', lat: 37.7989, lng: -122.4662, type: 'nature' as const, radius: 0.008 , priority: 3 },
-  { name: 'Baker Beach', lat: 37.7936, lng: -122.4836, type: 'nature' as const, radius: 0.003 , priority: 3 },
-  { name: 'Ocean Beach', lat: 37.7605, lng: -122.5105, type: 'nature' as const, radius: 0.005 , priority: 3 },
-  { name: 'Crissy Field', lat: 37.8039, lng: -122.4617, type: 'nature' as const, radius: 0.004 , priority: 3 },
+  { name: 'Presidio', lat: 37.7989, lng: -122.4662, type: 'nature' as const, radius: 0.008 , priority: 1 },
+  { name: 'Baker Beach', lat: 37.7936, lng: -122.4836, type: 'nature' as const, radius: 0.003 , priority: 1 },
+  { name: 'Ocean Beach', lat: 37.7605, lng: -122.5105, type: 'nature' as const, radius: 0.005 , priority: 1 },
+  { name: 'Crissy Field', lat: 37.8039, lng: -122.4617, type: 'nature' as const, radius: 0.004 , priority: 1 },
 
   // Hidden gems and Atlas Obscura spots
   { name: 'Wave Organ', lat: 37.8071, lng: -122.4359, type: 'art' as const, radius: 0.002 , priority: 2 },
@@ -259,20 +259,31 @@ function isJunkPlace(place: any): boolean {
 
   // Filter by name patterns (parking lots, generic businesses)
   const lower = (place.name || '').toLowerCase();
-  if (/parking|garage|lot|storage|laundro|cleaners|nail salon|barber/i.test(lower)) return true;
+  if (/parking|garage|\blot\b|storage|laundro|cleaners|nail salon|barber/i.test(lower)) return true;
 
-  // Must have decent reviews to be worth showing (at least 4.0 rating with 50+ reviews)
-  // Or be a park/museum/art gallery (these are always okay)
-  const isAlwaysOkay = place.types && (
+  // Filter gibberish names (too short, mostly punctuation, random letters)
+  const nameLetters = (place.name || '').replace(/[^a-zA-Z]/g, '');
+  if (nameLetters.length < 3) return true;
+  if (/^[A-Z\.\s,]{1,20}$/.test((place.name || '').trim())) return true;
+
+  // ALL places need at least some reviews to be real
+  if (!place.user_ratings_total || place.user_ratings_total < 5) return true;
+
+  // Parks/museums get a lower bar but still need to be legit
+  const isWellKnownType = place.types && (
     place.types.includes('park') ||
     place.types.includes('museum') ||
     place.types.includes('art_gallery') ||
     place.types.includes('tourist_attraction')
   );
-  if (!isAlwaysOkay) {
-    if (!place.rating || place.rating < 4.0) return true;
-    if (!place.user_ratings_total || place.user_ratings_total < 50) return true;
+  if (isWellKnownType) {
+    if (!place.rating || place.rating < 3.5) return true;
+    return false;
   }
+
+  // Everything else needs strong reviews
+  if (!place.rating || place.rating < 4.0) return true;
+  if (!place.user_ratings_total || place.user_ratings_total < 50) return true;
 
   return false;
 }
@@ -438,7 +449,8 @@ async function getWeather(lat: number, lng: number) {
 
     // Map weather codes to conditions
     let condition = 'clear';
-    if (weatherCode >= 51 && weatherCode <= 67) condition = 'rainy';
+    if (weatherCode >= 45 && weatherCode <= 48) condition = 'foggy';
+    else if (weatherCode >= 51 && weatherCode <= 67) condition = 'rainy';
     else if (weatherCode >= 71 && weatherCode <= 77) condition = 'snowy';
     else if (weatherCode >= 80 && weatherCode <= 99) condition = 'stormy';
     else if (weatherCode >= 1 && weatherCode <= 3) condition = 'cloudy';
@@ -701,12 +713,14 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ places, walkTimeMinutes: Math.round(directions.duration / 60) }),
     });
 
-    const { descriptions, timeComparisons } = await response.json();
+    const descData = await response.json();
+    const descriptions = descData.descriptions || [];
+    const timeComparisons = descData.timeComparisons || [];
 
     // Add descriptions to places
     const pointsOfInterest = places.map((place, i) => ({
       ...place,
-      description: descriptions[i] || 'a place you walked past',
+      description: descriptions[i] || 'a place worth seeing',
     }));
 
     // Calculate health stats

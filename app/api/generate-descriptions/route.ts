@@ -100,7 +100,10 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
     const timeComparisons = timeComparisonsText
       .split('\n')
       .filter((line) => line.trim())
-      .map((text) => ({ text: text.trim() }));
+      .map((line) => line.replace(/^\d+\.\s*/, '').trim())
+      .map((line) => line.replace(/^-\s*/, '').trim())
+      .filter((line) => line.length > 0)
+      .map((text) => ({ text }));
 
     return NextResponse.json({
       descriptions,
