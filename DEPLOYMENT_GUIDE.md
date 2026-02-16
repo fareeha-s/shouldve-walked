@@ -82,6 +82,14 @@ This guide walks you through deploying "what you missed" to Vercel so anyone can
    - Find "what-you-missed" in the list
    - Click "Import"
 
+   **IMPORTANT: Configure Root Directory**
+   - On the "Configure Project" screen, look for "Root Directory"
+   - Click "Edit" next to Root Directory
+   - Type: `dallas`
+   - Click "Continue"
+
+   (This is required because the Next.js app is in the `/dallas` folder, not the repository root)
+
 4. **Add environment variables**
    - Before deploying, scroll down to "Environment Variables"
    - Add these 3 variables:
@@ -159,6 +167,34 @@ Now that you have a Vercel URL, secure your Google Maps API key:
    - Should show: `{"remaining":1500,"limit":1500,"used":0}`
 
 ## Troubleshooting
+
+### "No framework detected" or 404 error on Vercel
+
+This happens when Vercel can't find the Next.js app because it's in the `/dallas` subdirectory.
+
+**Fix for existing deployments:**
+1. Go to your project on Vercel
+2. Click "Settings" (top right)
+3. Scroll down to "Build & Development Settings"
+4. Find "Root Directory"
+5. Click "Edit"
+6. Enter: `dallas`
+7. Click "Save"
+8. Go to "Deployments" tab
+9. Click the three dots (...) on the latest deployment
+10. Click "Redeploy"
+
+**Fix during new deployment:**
+- When importing the project, on the "Configure Project" screen
+- Look for "Root Directory" section
+- Click "Edit"
+- Type: `dallas`
+- Then continue with environment variables
+
+If you still don't see the Root Directory option:
+- Make sure you're on the "Configure Project" page (right after clicking Import)
+- It should be under "Framework Preset" section
+- If you already deployed and can't find it in Settings, try deleting the project and re-importing it
 
 ### "Failed to load Google Maps"
 - Check that all 3 APIs are enabled in Google Cloud Console

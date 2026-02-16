@@ -14,13 +14,16 @@ export default function RouteMap({ data }: RouteMapProps) {
 
   useEffect(() => {
     const initMap = async () => {
-      const loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-        version: 'weekly',
-        libraries: ['places', 'geometry'],
-      });
+      // Check if Google Maps is already loaded
+      if (!window.google) {
+        const loader = new Loader({
+          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+          version: 'weekly',
+          libraries: ['places', 'geometry'],
+        });
 
-      await loader.load();
+        await loader.load();
+      }
 
       if (mapRef.current && window.google) {
         const map = new window.google.maps.Map(mapRef.current, {
@@ -30,58 +33,58 @@ export default function RouteMap({ data }: RouteMapProps) {
           },
           zoom: 14,
           styles: [
-            { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
-            { elementType: 'labels.text.stroke', stylers: [{ color: '#0a0a0a' }] },
-            { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+            { elementType: 'geometry', stylers: [{ color: '#f5f5f5' }] },
+            { elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }] },
+            { elementType: 'labels.text.fill', stylers: [{ color: '#666666' }] },
             {
               featureType: 'administrative.locality',
               elementType: 'labels.text.fill',
-              stylers: [{ color: '#d59563' }],
+              stylers: [{ color: '#000000' }],
             },
             {
               featureType: 'poi',
               elementType: 'labels.text.fill',
-              stylers: [{ color: '#d59563' }],
+              stylers: [{ color: '#666666' }],
             },
             {
               featureType: 'poi.park',
               elementType: 'geometry',
-              stylers: [{ color: '#1f2a1f' }],
+              stylers: [{ color: '#d4e9d4' }],
             },
             {
               featureType: 'poi.park',
               elementType: 'labels.text.fill',
-              stylers: [{ color: '#6b9a76' }],
+              stylers: [{ color: '#3d7a3d' }],
             },
             {
               featureType: 'road',
               elementType: 'geometry',
-              stylers: [{ color: '#2a2a2a' }],
+              stylers: [{ color: '#ffffff' }],
             },
             {
               featureType: 'road',
               elementType: 'geometry.stroke',
-              stylers: [{ color: '#1f1f1f' }],
+              stylers: [{ color: '#d0d0d0' }],
             },
             {
               featureType: 'road.highway',
               elementType: 'geometry',
-              stylers: [{ color: '#3a3a3a' }],
+              stylers: [{ color: '#f0f0f0' }],
             },
             {
               featureType: 'road.highway',
               elementType: 'geometry.stroke',
-              stylers: [{ color: '#2f2f2f' }],
+              stylers: [{ color: '#c0c0c0' }],
             },
             {
               featureType: 'water',
               elementType: 'geometry',
-              stylers: [{ color: '#0f1419' }],
+              stylers: [{ color: '#c9e4f5' }],
             },
             {
               featureType: 'water',
               elementType: 'labels.text.fill',
-              stylers: [{ color: '#515c6d' }],
+              stylers: [{ color: '#5a8fad' }],
             },
           ],
           disableDefaultUI: true,
@@ -95,9 +98,9 @@ export default function RouteMap({ data }: RouteMapProps) {
         new window.google.maps.Polyline({
           path,
           geodesic: true,
-          strokeColor: '#ededed',
+          strokeColor: '#0066ff',
           strokeOpacity: 1.0,
-          strokeWeight: 3,
+          strokeWeight: 4,
           map,
         });
 
@@ -122,5 +125,5 @@ export default function RouteMap({ data }: RouteMapProps) {
     initMap();
   }, [data]);
 
-  return <div ref={mapRef} className="w-full h-[400px] md:h-[500px] bg-[#1a1a1a]" />;
+  return <div ref={mapRef} className="w-full h-[300px] md:h-[450px] lg:h-[500px] bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]" />;
 }

@@ -13,10 +13,9 @@ export interface HealthStats {
   waymoTimeMinutes: number;
   steps: number;
   caloriesBurned: number;
-  foodEquivalent: string;
+  exerciseEquivalent: string;
   exerciseMinutes: number;
   exercisePercentage: number;
-  guiltScore: number;
 }
 
 export interface TimeComparison {
@@ -40,6 +39,15 @@ export interface AnalysisResult {
       west: number;
     };
   };
+  verdict: {
+    worthIt: boolean;
+    reason: string;
+  };
+  weather: {
+    condition: string;
+    temperature: number;
+  };
+  neighborhoods: string[];
   pointsOfInterest: PointOfInterest[];
   healthStats: HealthStats;
   timeComparisons: TimeComparison[];

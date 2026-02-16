@@ -21,20 +21,23 @@ export async function POST(request: NextRequest) {
     const openai = getOpenAIClient();
 
     // Generate POI descriptions
-    const poiPrompt = `You are generating deadpan, slightly funny one-liners for places someone walked past in San Francisco. The tone is internet humor that doesn't try too hard. Not corporate funny. Not wellness app friendly. Just sounds like someone who's chronically online describing what you walked past.
+    const poiPrompt = `You are generating deadpan, funny one-liners for SF landmarks and hidden gems someone missed by taking a waymo. The tone is dry and sarcastic. Not trying too hard. Just stating what they missed.
 
 Places:
 ${places.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
 
-Generate one deadpan description for each place. Each description should be a single sentence. Don't try to be funny. Just state something as a fact. The humor comes from the truth of it, not from punchlines.
+Generate one short, punchy description for each place. MAXIMUM 12 words. Just one sentence. Deadpan. The humor comes from what they actually missed, not from punchlines.
 
-Examples of the vibe:
-- "a coffee shop where the barista would've remembered your order but ok"
-- "a mural of a giant hummingbird you'll never emotionally connect with now"
-- "a park bench with arguably the best view of the sunset but sure, sit in traffic"
-- "a magnolia tree that was blooming for you specifically and you didn't even look"
+Examples:
+- iconic victorian houses with the best sunset view
+- SF's most instagrammed street you drove past
+- a hidden beach with views you'll never see
+- murals that took artists weeks to paint
+- stairs with a view worth the climb
 
-Return ONLY the descriptions, one per line, numbered to match the places list.`;
+Focus on what's actually special or beautiful about each place. Keep it real and simple.
+
+IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match the places list.`;
 
     const poiResponse = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -46,24 +49,44 @@ Return ONLY the descriptions, one per line, numbered to match the places list.`;
     const descriptions = descriptionsText
       .split('\n')
       .filter((line) => line.trim())
-      .map((line) => line.replace(/^\d+\.\s*/, '').trim());
+      .map((line) => line.replace(/^\d+\.\s*/, '').trim())
+      .map((line) => line.replace(/^["']|["']$/g, '')); // Remove leading/trailing quotes
 
     // Generate time comparisons
-    const timePrompt = `You are generating hyper-specific time comparisons for a ${walkTimeMinutes} minute walk that someone skipped by taking a robotaxi in San Francisco.
+    let timePrompt = '';
 
-The comparisons should be hyper-specific to SF startup and AI lab culture. Not big tech corporate, not fresh grads. Think 22-32 year old builders who moved to SF, live in a hacker house or overpriced soma apartment, post on twitter too much, and are building their second or third thing.
+    // Edge case: Very long walks (over 2 hours)
+    if (walkTimeMinutes > 120) {
+      timePrompt = `You are generating absurdly honest time comparisons for a ${walkTimeMinutes} minute (${Math.round(walkTimeMinutes / 60)} hour) walk that someone skipped by taking a robotaxi.
+
+This is an insane distance to walk. The comparisons should highlight how long this is. The walk is LONGER than these things. Dry. Sarcastic. Just stating facts.
+
+Examples for ${walkTimeMinutes} minutes:
+- that's longer than most movies
+- you've sat through shorter all-hands meetings
+- that's a full workday of walking
+
+IMPORTANT: The ${walkTimeMinutes} minute walk should be LONGER than what you're comparing it to. Don't say "you've spent less time" - that makes no sense.
+
+Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
+    } else {
+      // Normal walks
+      timePrompt = `You are generating dry, sarcastic time comparisons for a ${walkTimeMinutes} minute walk that someone skipped by taking a robotaxi in San Francisco.
+
+The tone is smart tech twitter. Dry. Sarcastic. Not trying hard. Just stating observations. Think people who've shipped real products, read papers, have opinions on infra. Not YC references. Not junior.
 
 Examples of the vibe:
-- "you spent longer than this choosing between supabase and planetscale"
-- "that's how long you spent on your personal site nobody visits"
-- "shorter than your last coffee chat that was definitely a pitch"
-- "you doom scrolled longer than this before bed last night"
-- "that's one 'quick sync' with your cofounder"
-- "you've spent longer refreshing hacker news today"
+- you've spent longer waiting for CI to pass
+- that's one loom video nobody will watch
+- you've spent longer in the stripe dashboard today
+- shorter than your average debugging session
+- that's how long you spent choosing a font for your landing page
+- you've scrolled twitter longer than this in the bathroom
 
-Don't try to be funny. Just state the comparison as a fact. The humor comes from the truth of it, not from punchlines or clever wording. Deadpan. Flat. Just say it.
+Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
 
 Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ONLY the comparisons, one per line.`;
+    }
 
     const timeResponse = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

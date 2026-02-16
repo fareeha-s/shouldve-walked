@@ -18,100 +18,116 @@ export default function Results({ data }: ResultsProps) {
   }, [data]);
 
   return (
-    <div ref={resultsRef} className="mt-16 space-y-12 animate-in fade-in duration-500">
-      {/* Health Stats */}
-      <section className="border border-[#2a2a2a] bg-[#0f0f0f] p-6 md:p-8">
-        <h2 className="text-xl font-mono mb-6 text-[#ededed]">stats</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 font-mono text-sm">
-          <div>
-            <div className="text-[#a0a0a0] mb-1">walk time</div>
-            <div className="text-2xl">{data.healthStats.walkTimeMinutes} min</div>
-          </div>
-          <div>
-            <div className="text-[#a0a0a0] mb-1">waymo time</div>
-            <div className="text-2xl">{data.healthStats.waymoTimeMinutes} min</div>
-          </div>
-          <div>
-            <div className="text-[#a0a0a0] mb-1">steps</div>
-            <div className="text-2xl">{data.healthStats.steps.toLocaleString()}</div>
-          </div>
-          <div>
-            <div className="text-[#a0a0a0] mb-1">calories</div>
-            <div className="text-2xl">{data.healthStats.caloriesBurned}</div>
-            <div className="text-[#666] text-xs mt-1">{data.healthStats.foodEquivalent}</div>
-          </div>
-          <div>
-            <div className="text-[#a0a0a0] mb-1">exercise</div>
-            <div className="text-2xl">{data.healthStats.exerciseMinutes} min</div>
-            <div className="text-[#666] text-xs mt-1">
-              {data.healthStats.exercisePercentage}% of daily goal
-            </div>
-          </div>
-          <div>
-            <div className="text-[#a0a0a0] mb-1">guilt score</div>
-            <div className="text-2xl">{data.healthStats.guiltScore}/10</div>
-          </div>
-        </div>
-      </section>
+    <div ref={resultsRef} className="mt-12 md:mt-20 space-y-8 md:space-y-16 animate-in fade-in duration-500">
 
-      {/* Time Comparisons */}
-      <section>
-        <h2 className="text-xl font-mono mb-6">that&apos;s {data.healthStats.walkTimeMinutes} min</h2>
-        <div className="space-y-3">
-          {data.timeComparisons.map((comparison, index) => (
-            <div
-              key={index}
-              className="border-l-2 border-[#2a2a2a] pl-4 py-2 text-[#a0a0a0] font-mono text-sm"
-            >
-              {comparison.text}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Map */}
-      <section>
-        <h2 className="text-xl font-mono mb-6">the route</h2>
-        <RouteMap data={data} />
-      </section>
-
-      {/* Points of Interest */}
-      <section>
-        <h2 className="text-xl font-mono mb-6">what you missed</h2>
-        <div className="space-y-3">
-          {data.pointsOfInterest.map((poi, index) => (
-            <div
-              key={index}
-              className="border border-[#2a2a2a] bg-[#0f0f0f] p-4"
-            >
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex-1">
-                  <div className="font-mono text-sm text-[#ededed] mb-1">{poi.name}</div>
-                  <div className="text-sm text-[#a0a0a0]">{poi.description}</div>
-                </div>
-                <div className="text-xs font-mono text-[#666] uppercase">{poi.type}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Safety Warnings */}
+      {/* Safety Warnings - Show first if exists */}
       {data.safetyWarnings.length > 0 && (
-        <section>
-          <h2 className="text-xl font-mono mb-6">real talk</h2>
+        <section className="border-[3px] border-[#e74c3c] bg-gradient-to-br from-[#fff5f5] to-[#ffe8e6] p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-base md:text-lg font-mono font-semibold mb-4 md:mb-6 text-[#c0392b] uppercase tracking-[0.2em]">real talk though</h2>
           <div className="space-y-3">
             {data.safetyWarnings.map((warning, index) => (
               <div
                 key={index}
-                className="border-l-2 border-[#ff6b6b] pl-4 py-2 text-[#ff6b6b] font-mono text-sm"
+                className="text-sm md:text-base font-mono text-[#2c3e50] leading-relaxed"
               >
-                <span className="text-[#a0a0a0]">{warning.area}:</span> {warning.warning}
+                <span className="font-semibold text-[#e74c3c]">{warning.area}:</span> {warning.warning}
               </div>
             ))}
           </div>
         </section>
       )}
+
+      {/* Map with walk time overlay */}
+      <section className="relative">
+        <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-5">the route</h2>
+        <div className="relative">
+          <RouteMap data={data} />
+          <div className="absolute bottom-4 right-4 bg-white border-[3px] border-black px-4 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <div className="text-2xl md:text-3xl font-mono font-bold tracking-tight text-black leading-none">
+              {data.healthStats.walkTimeMinutes}
+            </div>
+            <div className="text-[10px] font-mono text-[#888] uppercase tracking-[0.2em] mt-1">
+              min walk
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Points of Interest */}
+      {data.pointsOfInterest.length > 0 ? (
+        <section>
+          <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-6">what you missed</h2>
+          <div className="space-y-4">
+            {data.pointsOfInterest.map((poi, index) => (
+              <div
+                key={index}
+                className="border-l-[4px] border-[#e67e22] pl-4 md:pl-6 py-4 bg-gradient-to-r from-[#fff9f5] to-transparent hover:from-[#fff4ed] transition-colors"
+              >
+                <div className="font-mono text-sm md:text-base font-semibold text-[#2c3e50] mb-2">
+                  {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type})</span>
+                </div>
+                <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
+              </div>
+            ))}
+
+            {/* Also missed: exercise and time */}
+            <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#fef9f3] p-6 md:p-8 mt-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="text-base md:text-lg font-mono font-semibold text-[#2c3e50] mb-4">
+                also missed
+              </div>
+              <div className="space-y-3">
+                <div className="text-lg md:text-xl font-mono text-black leading-relaxed">
+                  {data.healthStats.exerciseEquivalent}
+                </div>
+                {data.timeComparisons.length > 0 && (
+                  <div className="text-sm md:text-base font-mono text-[#7f8c8d] leading-relaxed">
+                    {data.timeComparisons[0].text}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="text-center py-10 border-[3px] border-dashed border-[#bdc3c7] bg-[#f8f9fa]">
+          <div className="text-sm font-mono text-[#7f8c8d]">
+            you missed: nothing. just beige buildings and parked cars
+          </div>
+        </section>
+      )}
+
+      {/* Neighborhoods */}
+      {data.neighborhoods.length > 0 && (
+        <section>
+          <h2 className="text-xs font-mono text-[#888] uppercase tracking-[0.25em] mb-5">neighborhoods</h2>
+          <div className="grid grid-cols-2 md:flex md:justify-center gap-2 md:gap-3">
+            {data.neighborhoods.map((neighborhood, index) => (
+              <div
+                key={index}
+                className="px-3 md:px-4 py-2 md:py-2.5 border-[3px] border-black bg-white font-mono text-xs md:text-sm font-semibold hover:bg-[#f1c40f] hover:border-[#f39c12] transition-all text-center"
+              >
+                {neighborhood}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Key stats at bottom */}
+      <section className="grid grid-cols-3 gap-3 md:gap-4">
+        <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#f8f8f8] p-4 md:p-6 text-center hover:border-[#e67e22] transition-colors shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight">{data.healthStats.steps.toLocaleString()}</div>
+          <div className="text-[10px] md:text-xs font-mono text-[#555] uppercase tracking-[0.2em]">steps missed</div>
+        </div>
+        <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#f8f8f8] p-4 md:p-6 text-center hover:border-[#9b59b6] transition-colors shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight">{data.healthStats.caloriesBurned}</div>
+          <div className="text-[10px] md:text-xs font-mono text-[#555] uppercase tracking-[0.2em]">cal not burned</div>
+        </div>
+        <div className="border-[3px] border-black bg-gradient-to-br from-white to-[#f8f8f8] p-4 md:p-6 text-center hover:border-[#27ae60] transition-colors shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight">{data.healthStats.waymoTimeMinutes}</div>
+          <div className="text-[10px] md:text-xs font-mono text-[#555] uppercase tracking-[0.2em]">min saved</div>
+        </div>
+      </section>
     </div>
   );
 }

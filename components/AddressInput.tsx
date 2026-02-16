@@ -11,6 +11,8 @@ interface AddressInputProps {
 export default function AddressInput({ onAnalyze, loading }: AddressInputProps) {
   const [pickup, setPickup] = useState('');
   const [dropoff, setDropoff] = useState('');
+  const [pickupValid, setPickupValid] = useState(false);
+  const [dropoffValid, setDropoffValid] = useState(false);
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,19 +20,29 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
     const initAutocomplete = async () => {
       if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) return;
 
-      const loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-        version: 'weekly',
-        libraries: ['places'],
-      });
+      // Check if Google Maps is already loaded
+      if (!window.google) {
+        const loader = new Loader({
+          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+          version: 'weekly',
+          libraries: ['places', 'geometry'],
+        });
 
-      await loader.load();
+        await loader.load();
+      }
 
       if (window.google && pickupInputRef.current && dropoffInputRef.current) {
+        // Bay Area bounding box for autocomplete
+        const bayAreaBounds = new window.google.maps.LatLngBounds(
+          new window.google.maps.LatLng(36.9, -123.0), // SW corner
+          new window.google.maps.LatLng(38.2, -121.2)  // NE corner
+        );
+
         const options = {
+          bounds: bayAreaBounds,
+          strictBounds: true, // Only show results within bounds
           componentRestrictions: { country: 'us' },
-          fields: ['formatted_address', 'name'],
-          types: ['establishment', 'geocode'],
+          fields: ['formatted_address', 'name', 'types', 'address_components'],
         };
 
         const pickupAutocomplete = new window.google.maps.places.Autocomplete(
@@ -43,22 +55,48 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           options
         );
 
+        // Helper to validate and set place
+        const handlePlaceSelect = (
+          place: google.maps.places.PlaceResult,
+          setter: (value: string) => void,
+          validSetter: (valid: boolean) => void
+        ) => {
+          // Accept any specific address: street addresses, establishments, landmarks, etc.
+          const hasSpecificAddress = place.types?.includes('street_address');
+          const hasPremise = place.types?.includes('premise');
+          const hasEstablishment = place.types?.includes('establishment');
+          const hasPointOfInterest = place.types?.includes('point_of_interest');
+          const isPark = place.types?.includes('park');
+          const isRoute = place.types?.includes('route');
+
+          // Reject if it's just a generic area (city, neighborhood, etc.)
+          const genericTypes = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country', 'postal_code'];
+          const isOnlyGeneric = place.types?.every(type => genericTypes.includes(type) || type === 'political' || type === 'geocode');
+
+          if (isOnlyGeneric) {
+            alert('please enter a specific address or location, not just a city or area');
+            setter('');
+            validSetter(false);
+            return;
+          }
+
+          if (place.formatted_address) {
+            setter(place.formatted_address);
+            validSetter(true);
+          } else if (place.name) {
+            setter(place.name);
+            validSetter(true);
+          }
+        };
+
         pickupAutocomplete.addListener('place_changed', () => {
           const place = pickupAutocomplete.getPlace();
-          if (place.formatted_address) {
-            setPickup(place.formatted_address);
-          } else if (place.name) {
-            setPickup(place.name);
-          }
+          handlePlaceSelect(place, setPickup, setPickupValid);
         });
 
         dropoffAutocomplete.addListener('place_changed', () => {
           const place = dropoffAutocomplete.getPlace();
-          if (place.formatted_address) {
-            setDropoff(place.formatted_address);
-          } else if (place.name) {
-            setDropoff(place.name);
-          }
+          handlePlaceSelect(place, setDropoff, setDropoffValid);
         });
       }
     };
@@ -68,15 +106,21 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!pickupValid || !dropoffValid) {
+      alert('please select both locations from the dropdown suggestions');
+      return;
+    }
+
     if (pickup && dropoff && !loading) {
       onAnalyze(pickup, dropoff);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
       <div>
-        <label htmlFor="pickup" className="block text-sm font-mono text-[#a0a0a0] mb-2">
+        <label htmlFor="pickup" className="block text-xs font-mono text-[#7f8c8d] mb-2 uppercase tracking-[0.2em]">
           pickup
         </label>
         <input
@@ -84,15 +128,18 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           id="pickup"
           type="text"
           value={pickup}
-          onChange={(e) => setPickup(e.target.value)}
-          placeholder="where you were"
-          className="w-full bg-[#151515] border border-[#2a2a2a] rounded px-4 py-3 font-mono text-sm focus:outline-none focus:border-[#404040] transition-colors"
+          onChange={(e) => {
+            setPickup(e.target.value);
+            setPickupValid(false); // Invalidate when manually typing
+          }}
+          placeholder="dolores park, ferry building, blue bottle..."
+          className="w-full bg-white border-[3px] border-black px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none focus:border-[#3498db] transition-all placeholder:text-[#bdc3c7]"
           disabled={loading}
         />
       </div>
 
       <div>
-        <label htmlFor="dropoff" className="block text-sm font-mono text-[#a0a0a0] mb-2">
+        <label htmlFor="dropoff" className="block text-xs font-mono text-[#7f8c8d] mb-2 uppercase tracking-[0.2em]">
           dropoff
         </label>
         <input
@@ -100,17 +147,20 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           id="dropoff"
           type="text"
           value={dropoff}
-          onChange={(e) => setDropoff(e.target.value)}
-          placeholder="where you needed to be"
-          className="w-full bg-[#151515] border border-[#2a2a2a] rounded px-4 py-3 font-mono text-sm focus:outline-none focus:border-[#404040] transition-colors"
+          onChange={(e) => {
+            setDropoff(e.target.value);
+            setDropoffValid(false); // Invalidate when manually typing
+          }}
+          placeholder="civic center, tartine, where you needed to be..."
+          className="w-full bg-white border-[3px] border-black px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none focus:border-[#3498db] transition-all placeholder:text-[#bdc3c7]"
           disabled={loading}
         />
       </div>
 
       <button
         type="submit"
-        disabled={!pickup || !dropoff || loading}
-        className="w-full bg-[#ededed] text-[#0a0a0a] py-3 px-6 font-mono text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white transition-colors"
+        disabled={!pickup || !dropoff || !pickupValid || !dropoffValid || loading}
+        className="w-full bg-black text-white py-3 md:py-4 px-6 font-mono text-sm md:text-base font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2c3e50] hover:scale-[1.02] active:scale-[0.98] transition-all border-[3px] border-black uppercase tracking-wide"
       >
         {loading ? 'calculating...' : 'show me what i missed'}
       </button>
