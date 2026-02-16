@@ -75,6 +75,11 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           if (address) {
             setPickup(address);
             setPickupValid(true);
+            // Override Google's DOM manipulation with our corrected address
+            if (pickupInputRef.current) pickupInputRef.current.value = address;
+            setTimeout(() => {
+              if (pickupInputRef.current) pickupInputRef.current.value = address;
+            }, 10);
           }
         });
 
@@ -83,6 +88,11 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           if (address) {
             setDropoff(address);
             setDropoffValid(true);
+            // Override Google's DOM manipulation with our corrected address
+            if (dropoffInputRef.current) dropoffInputRef.current.value = address;
+            setTimeout(() => {
+              if (dropoffInputRef.current) dropoffInputRef.current.value = address;
+            }, 10);
           }
         });
       }
