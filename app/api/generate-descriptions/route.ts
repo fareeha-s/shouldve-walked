@@ -21,23 +21,21 @@ export async function POST(request: NextRequest) {
     const openai = getOpenAIClient();
 
     // Generate POI descriptions
-    const poiPrompt = `You are generating deadpan, funny one-liners for SF landmarks and hidden gems someone missed by taking a waymo. The tone is dry and sarcastic. Not trying too hard. Just stating what they missed.
+    const poiPrompt = `You are writing lovely, elegant one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. The tone is warm, wistful, almost poetic. Think of a well-traveled British narrator quietly describing what was lost. Not sarcastic. Not trying to be funny. Just genuinely beautiful.
 
 Places:
 ${places.map((p: any, i: number) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
 
-Generate one short, punchy description for each place. MAXIMUM 12 words. Just one sentence. Deadpan. The humor comes from what they actually missed, not from punchlines.
+Generate one elegant description for each place. MAXIMUM 12 words. One sentence. Evocative. Make the reader feel the loss.
 
 Examples:
-- iconic victorian houses with the best sunset view
-- SF's most instagrammed street you rode past
-- a hidden beach with views you'll never see
-- murals that took artists weeks to paint
-- stairs with a view worth the climb
-- ancient cypress trees you'll never walk under
-- blooming jacarandas lining the whole street
+- where the painted victorians glow amber in the late afternoon light
+- a winding mosaic staircase tucked between quiet gardens
+- the ruins where the sea reclaims what we built
+- a hidden alley alive with decades of colour and story
+- the view from the top that makes the whole city feel small
 
-Focus on what's actually special, unique, or beautiful about each place. Prioritize what makes it a must-see — history, architecture, views, art, hidden stories. Only mention trees/plants/greenery if the place is literally a garden or botanical space, not for regular parks.
+Write about what makes each place genuinely special — the light, the history, the feeling of being there. Be specific to each place. No generic descriptions.
 
 IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match the places list.`;
 

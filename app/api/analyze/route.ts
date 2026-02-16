@@ -225,16 +225,56 @@ const SF_LANDMARKS = [
   { name: 'Embarcadero waterfront', lat: 37.7955, lng: -122.3917, type: 'viewpoint' as const, radius: 0.003 },
 ];
 
-// Chain stores to filter out
+// Chain stores and junk places to filter out
 const CHAIN_KEYWORDS = [
   'mcdonald', 'starbucks', 'subway', 'burger king', 'taco bell',
   'wendys', 'chipotle', 'panda express', 'cvs', 'walgreens', '7-eleven',
-  'safeway', 'whole foods', 'trader joe', 'target', 'walmart'
+  'safeway', 'whole foods', 'trader joe', 'target', 'walmart',
+  'shell', 'chevron', 'arco', 'valero', 'bp ', '76 ',
+  'bank of america', 'chase bank', 'wells fargo', 'citibank',
+  'fedex', 'ups store', 'usps', 'post office',
+  'rite aid', 'dollar tree', 'dollar general',
+  'autozone', 'o\'reilly', 'jiffy lube',
+];
+
+// Google Places types that are never interesting
+const JUNK_TYPES = [
+  'parking', 'gas_station', 'car_wash', 'car_repair', 'car_dealer',
+  'laundry', 'storage', 'insurance_agency', 'real_estate_agency',
+  'dentist', 'doctor', 'hospital', 'pharmacy', 'veterinary_care',
+  'bank', 'atm', 'accounting', 'lawyer',
+  'locksmith', 'electrician', 'plumber', 'roofing_contractor',
+  'moving_company', 'funeral_home', 'lodging', 'convenience_store',
+  'liquor_store', 'supermarket', 'grocery_or_supermarket',
 ];
 
 function isChain(placeName: string): boolean {
   const lower = placeName.toLowerCase();
   return CHAIN_KEYWORDS.some(keyword => lower.includes(keyword));
+}
+
+function isJunkPlace(place: any): boolean {
+  // Filter by Google Places types
+  if (place.types && place.types.some((t: string) => JUNK_TYPES.includes(t))) return true;
+
+  // Filter by name patterns (parking lots, generic businesses)
+  const lower = (place.name || '').toLowerCase();
+  if (/parking|garage|lot|storage|laundro|cleaners|nail salon|barber/i.test(lower)) return true;
+
+  // Must have decent reviews to be worth showing (at least 4.0 rating with 50+ reviews)
+  // Or be a park/museum/art gallery (these are always okay)
+  const isAlwaysOkay = place.types && (
+    place.types.includes('park') ||
+    place.types.includes('museum') ||
+    place.types.includes('art_gallery') ||
+    place.types.includes('tourist_attraction')
+  );
+  if (!isAlwaysOkay) {
+    if (!place.rating || place.rating < 4.0) return true;
+    if (!place.user_ratings_total || place.user_ratings_total < 50) return true;
+  }
+
+  return false;
 }
 
 async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: number, endLat: number, endLng: number) {
@@ -310,8 +350,9 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
           const placeLat = place.geometry.location.lat;
           const placeLng = place.geometry.location.lng;
 
-          // Skip chains, already seen places, and places too close to start/end
+          // Skip chains, junk places, already seen, and too close to start/end
           if (isChain(place.name) ||
+              isJunkPlace(place) ||
               seenPlaces.has(place.place_id) ||
               isTooCloseToStartOrEnd(placeLat, placeLng)) continue;
 
