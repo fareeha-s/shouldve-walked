@@ -542,11 +542,17 @@ function calculateVerdict(
       reason: 'this would\'ve been more exercise than most people get in a week... 😭',
     };
   }
-  // Perfect conditions + parks + safe = guilt trip even for long walks (up to 2 hours)
-  if (walkTimeMinutes > 60 && weather.condition === 'clear' && hasParks && safetyWarnings.length === 0) {
+  // 60-90 min walks: guilt trip if weather is decent and it's safe
+  if (walkTimeMinutes > 60 && safetyWarnings.length === 0 && weather.condition !== 'stormy' && weather.temperature > 50 && weather.temperature < 85) {
+    if (hasParks && weather.condition === 'clear') {
+      return {
+        worthIt: false,
+        reason: `${walkTimeMinutes} minutes through parks on a ${weather.temperature}° day... yeah you missed out 🥀`,
+      };
+    }
     return {
       worthIt: false,
-      reason: `${walkTimeMinutes} minutes through parks on a ${weather.temperature}° day... yeah you missed out 🥀`,
+      reason: `${walkTimeMinutes} minutes is a real walk... but that's the whole point 🥀`,
     };
   }
 
@@ -632,14 +638,7 @@ function calculateVerdict(
     };
   }
 
-  // Long walks: depends on conditions
-  // 45-90 min: only guilt trip if perfect conditions AND has parks
-  if (walkTimeMinutes > 60 && !(weather.condition === 'clear' && weather.temperature > 55 && weather.temperature < 80 && hasParks && safetyWarnings.length === 0)) {
-    return {
-      worthIt: true,
-      reason: `that's a long walk... your legs thank you for the ${ride} 😔`,
-    };
-  }
+  // Long walks with truly bad conditions already handled above
   if (walkTimeMinutes > 45 && !hasParks) {
     return {
       worthIt: true,
