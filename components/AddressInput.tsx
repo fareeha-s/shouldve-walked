@@ -55,16 +55,18 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           options
         );
 
-        // Simplified: just accept whatever Google gives us
         const handlePlaceSelect = (autocomplete: google.maps.places.Autocomplete) => {
           const place = autocomplete.getPlace();
           
-          // If no formatted_address, user probably didn't select from dropdown
-          if (!place.formatted_address) {
-            return;
+          if (!place.formatted_address) return;
+          
+          // If the place name isn't in the formatted address, prepend it
+          // e.g. "Dolores Park" + "San Francisco, CA, USA" -> "Dolores Park, San Francisco, CA, USA"
+          // but "123 Main St" + "123 Main St, SF, CA" stays as-is
+          if (place.name && !place.formatted_address.toLowerCase().includes(place.name.toLowerCase())) {
+            return `${place.name}, ${place.formatted_address}`;
           }
           
-          // Use the formatted address directly - no validation, no tricks
           return place.formatted_address;
         };
 
