@@ -5,8 +5,22 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "should i have walked",
-  description: "a playful guilt trip for people who take robotaxis six blocks",
+  title: "should i have walked.",
+  description: "find out what you missed by taking a waymo instead of walking — a guilt trip for sf robotaxi riders",
+  openGraph: {
+    title: "should i have walked.",
+    description: "find out what you missed by taking a waymo instead of walking",
+    type: "website",
+    locale: "en_US",
+    siteName: "should i have walked.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "should i have walked.",
+    description: "find out what you missed by taking a waymo instead of walking",
+    creator: "@fareehasala",
+  },
+  metadataBase: new URL("https://shouldihavewalked.com"),
 };
 
 export default function RootLayout({

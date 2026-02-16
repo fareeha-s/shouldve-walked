@@ -133,8 +133,9 @@ export default function Results({ data }: ResultsProps) {
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name + " San Francisco")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-[10px] transition-colors"
+                      className="flex-shrink-0 w-8 h-8 md:w-6 md:h-6 flex items-center justify-center text-xs md:text-[10px] transition-colors"
                       title="view on map"
+                      aria-label={`View ${poi.name} on Google Maps`}
                       style={{
                         border: '2px solid var(--th-border)',
                         backgroundColor: 'var(--th-surface)',
