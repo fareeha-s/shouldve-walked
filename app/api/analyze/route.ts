@@ -3,6 +3,7 @@ import type { AnalysisResult, PointOfInterest } from '@/lib/types';
 import { checkRateLimit } from '@/lib/ratelimit';
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const FOURSQUARE_API_KEY = process.env.FOURSQUARE_API_KEY;
 
 // Bay Area bounding box
 const BAY_AREA_BOUNDS = {
@@ -153,130 +154,95 @@ async function getNeighborhoodsAlongRoute(steps: any[]) {
   return Array.from(neighborhoods);
 }
 
-// SF-specific landmarks and hidden gems that are worth calling out
+// Permanent SF landmarks (things that literally cannot close - public art, parks, viewpoints, steps, buildings)
 const SF_LANDMARKS = [
   // Famous landmarks
-  { name: 'Painted Ladies', lat: 37.7762, lng: -122.4330, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
-  { name: 'Coit Tower', lat: 37.8024, lng: -122.4058, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
-  { name: 'Palace of Fine Arts', lat: 37.8026, lng: -122.4486, type: 'art' as const, radius: 0.004 , priority: 1 },
-  { name: 'Lombard Street', lat: 37.8021, lng: -122.4187, type: 'viewpoint' as const, radius: 0.002 , priority: 1 },
-  { name: 'Ferry Building', lat: 37.7955, lng: -122.3937, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
-  { name: 'Transamerica Pyramid', lat: 37.7952, lng: -122.4028, type: 'viewpoint' as const, radius: 0.002 , priority: 1 },
-  { name: 'City Lights Bookstore', lat: 37.7976, lng: -122.4064, type: 'art' as const, radius: 0.001 , priority: 1 },
-  { name: 'Grace Cathedral', lat: 37.7915, lng: -122.4131, type: 'art' as const, radius: 0.002 , priority: 1 },
+  { name: 'Painted Ladies', lat: 37.7762, lng: -122.4330, type: 'viewpoint' as const, radius: 0.003, priority: 1 },
+  { name: 'Coit Tower', lat: 37.8024, lng: -122.4058, type: 'viewpoint' as const, radius: 0.003, priority: 1 },
+  { name: 'Palace of Fine Arts', lat: 37.8026, lng: -122.4486, type: 'art' as const, radius: 0.004, priority: 1 },
+  { name: 'Lombard Street', lat: 37.8021, lng: -122.4187, type: 'viewpoint' as const, radius: 0.002, priority: 1 },
+  { name: 'Ferry Building', lat: 37.7955, lng: -122.3937, type: 'viewpoint' as const, radius: 0.003, priority: 1 },
+  { name: 'Transamerica Pyramid', lat: 37.7952, lng: -122.4028, type: 'viewpoint' as const, radius: 0.002, priority: 1 },
+  { name: 'City Lights Bookstore', lat: 37.7976, lng: -122.4064, type: 'art' as const, radius: 0.001, priority: 1 },
+  { name: 'Grace Cathedral', lat: 37.7915, lng: -122.4131, type: 'art' as const, radius: 0.002, priority: 1 },
 
   // Parks and nature
-  { name: 'Dolores Park', lat: 37.7596, lng: -122.4269, type: 'park' as const, radius: 0.005 , priority: 1 },
-  { name: 'Golden Gate Park', lat: 37.7694, lng: -122.4862, type: 'park' as const, radius: 0.01 , priority: 1 },
-  { name: 'Lands End Trail', lat: 37.7859, lng: -122.5089, type: 'nature' as const, radius: 0.004 , priority: 1 },
-  { name: 'Bernal Heights Hill', lat: 37.7416, lng: -122.4163, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
-  { name: 'Tank Hill', lat: 37.7537, lng: -122.4481, type: 'viewpoint' as const, radius: 0.002 , priority: 1 },
-  { name: 'Fort Funston', lat: 37.7133, lng: -122.5025, type: 'nature' as const, radius: 0.005 , priority: 2 },
-  { name: 'Glen Canyon Park', lat: 37.7394, lng: -122.4413, type: 'nature' as const, radius: 0.004 , priority: 2 },
-  { name: 'McLaren Park', lat: 37.7183, lng: -122.4213, type: 'park' as const, radius: 0.005 , priority: 1 },
-  { name: 'Buena Vista Park', lat: 37.7696, lng: -122.4413, type: 'park' as const, radius: 0.003 , priority: 1 },
-  { name: 'Corona Heights', lat: 37.7654, lng: -122.4387, type: 'viewpoint' as const, radius: 0.002 , priority: 1 },
-  { name: 'Twin Peaks', lat: 37.7544, lng: -122.4477, type: 'viewpoint' as const, radius: 0.003 , priority: 1 },
-  { name: 'Presidio', lat: 37.7989, lng: -122.4662, type: 'nature' as const, radius: 0.008 , priority: 1 },
-  { name: 'Baker Beach', lat: 37.7936, lng: -122.4836, type: 'nature' as const, radius: 0.003 , priority: 1 },
-  { name: 'Ocean Beach', lat: 37.7605, lng: -122.5105, type: 'nature' as const, radius: 0.005 , priority: 1 },
-  { name: 'Crissy Field', lat: 37.8039, lng: -122.4617, type: 'nature' as const, radius: 0.004 , priority: 1 },
+  { name: 'Dolores Park', lat: 37.7596, lng: -122.4269, type: 'park' as const, radius: 0.005, priority: 1 },
+  { name: 'Golden Gate Park', lat: 37.7694, lng: -122.4862, type: 'park' as const, radius: 0.01, priority: 1 },
+  { name: 'Lands End Trail', lat: 37.7859, lng: -122.5089, type: 'nature' as const, radius: 0.004, priority: 1 },
+  { name: 'Bernal Heights Hill', lat: 37.7416, lng: -122.4163, type: 'viewpoint' as const, radius: 0.003, priority: 1 },
+  { name: 'Tank Hill', lat: 37.7537, lng: -122.4481, type: 'viewpoint' as const, radius: 0.002, priority: 1 },
+  { name: 'Fort Funston', lat: 37.7133, lng: -122.5025, type: 'nature' as const, radius: 0.005, priority: 2 },
+  { name: 'Glen Canyon Park', lat: 37.7394, lng: -122.4413, type: 'nature' as const, radius: 0.004, priority: 2 },
+  { name: 'McLaren Park', lat: 37.7183, lng: -122.4213, type: 'park' as const, radius: 0.005, priority: 1 },
+  { name: 'Buena Vista Park', lat: 37.7696, lng: -122.4413, type: 'park' as const, radius: 0.003, priority: 1 },
+  { name: 'Corona Heights', lat: 37.7654, lng: -122.4387, type: 'viewpoint' as const, radius: 0.002, priority: 1 },
+  { name: 'Twin Peaks', lat: 37.7544, lng: -122.4477, type: 'viewpoint' as const, radius: 0.003, priority: 1 },
+  { name: 'Presidio', lat: 37.7989, lng: -122.4662, type: 'nature' as const, radius: 0.008, priority: 1 },
+  { name: 'Baker Beach', lat: 37.7936, lng: -122.4836, type: 'nature' as const, radius: 0.003, priority: 1 },
+  { name: 'Ocean Beach', lat: 37.7605, lng: -122.5105, type: 'nature' as const, radius: 0.005, priority: 1 },
+  { name: 'Crissy Field', lat: 37.8039, lng: -122.4617, type: 'nature' as const, radius: 0.004, priority: 1 },
 
-  // Hidden gems and Atlas Obscura spots
-  { name: 'Wave Organ', lat: 37.8071, lng: -122.4359, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Seward Street Slides', lat: 37.7488, lng: -122.4409, type: 'park' as const, radius: 0.002 , priority: 2 },
-  { name: 'Sutro Baths ruins', lat: 37.7808, lng: -122.5144, type: 'nature' as const, radius: 0.003 , priority: 2 },
-  { name: 'Musée Mécanique', lat: 37.8099, lng: -122.5095, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Lands End Labyrinth', lat: 37.7851, lng: -122.5111, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Andy Goldsworthy Wood Line', lat: 37.7987, lng: -122.4698, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Cayuga Park tree sculptures', lat: 37.7183, lng: -122.4428, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Spire sculpture (Presidio)', lat: 37.7934, lng: -122.4571, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Camera Obscura', lat: 37.7785, lng: -122.5138, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Yoda Fountain (Presidio)', lat: 37.7989, lng: -122.4526, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'San Francisco Columbarium', lat: 37.7741, lng: -122.4583, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Rincon Center murals', lat: 37.7900, lng: -122.3914, type: 'mural' as const, radius: 0.001 , priority: 2 },
+  // Hidden gems and Atlas Obscura spots (permanent installations)
+  { name: 'Wave Organ', lat: 37.8071, lng: -122.4359, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Seward Street Slides', lat: 37.7488, lng: -122.4409, type: 'park' as const, radius: 0.002, priority: 2 },
+  { name: 'Sutro Baths ruins', lat: 37.7808, lng: -122.5144, type: 'nature' as const, radius: 0.003, priority: 2 },
+  { name: 'Lands End Labyrinth', lat: 37.7851, lng: -122.5111, type: 'art' as const, radius: 0.001, priority: 2 },
+  { name: 'Andy Goldsworthy Wood Line', lat: 37.7987, lng: -122.4698, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Cayuga Park tree sculptures', lat: 37.7183, lng: -122.4428, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Spire sculpture (Presidio)', lat: 37.7934, lng: -122.4571, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Camera Obscura', lat: 37.7785, lng: -122.5138, type: 'art' as const, radius: 0.001, priority: 2 },
+  { name: 'Yoda Fountain (Presidio)', lat: 37.7989, lng: -122.4526, type: 'art' as const, radius: 0.001, priority: 2 },
+  { name: 'San Francisco Columbarium', lat: 37.7741, lng: -122.4583, type: 'art' as const, radius: 0.001, priority: 2 },
+  { name: 'Rincon Center murals', lat: 37.7900, lng: -122.3914, type: 'mural' as const, radius: 0.001, priority: 2 },
 
-  // Mosaic steps, murals, street art
-  { name: '16th Avenue Tiled Steps', lat: 37.7551, lng: -122.4734, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Hidden Garden Steps', lat: 37.7565, lng: -122.4743, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Moraga Street stairs', lat: 37.7557, lng: -122.4737, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Clarion Alley murals', lat: 37.7551, lng: -122.4176, type: 'mural' as const, radius: 0.002 , priority: 2 },
-  { name: 'Balmy Alley murals', lat: 37.7479, lng: -122.4110, type: 'mural' as const, radius: 0.002 , priority: 2 },
-  { name: 'Lyon Street Steps', lat: 37.7969, lng: -122.4478, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Filbert Street Steps', lat: 37.8019, lng: -122.4043, type: 'nature' as const, radius: 0.002 , priority: 2 },
-  { name: 'Greenwich Steps', lat: 37.8027, lng: -122.4050, type: 'nature' as const, radius: 0.002 , priority: 2 },
-  { name: 'Vallejo Street Stairway', lat: 37.7994, lng: -122.4095, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Women\'s Building murals', lat: 37.7602, lng: -122.4213, type: 'mural' as const, radius: 0.001 , priority: 2 },
-  { name: 'Mission murals on 24th St', lat: 37.7521, lng: -122.4181, type: 'mural' as const, radius: 0.003 , priority: 2 },
+  // Mosaic steps, murals, street art (permanent public art)
+  { name: '16th Avenue Tiled Steps', lat: 37.7551, lng: -122.4734, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Hidden Garden Steps', lat: 37.7565, lng: -122.4743, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Moraga Street stairs', lat: 37.7557, lng: -122.4737, type: 'art' as const, radius: 0.002, priority: 2 },
+  { name: 'Clarion Alley murals', lat: 37.7551, lng: -122.4176, type: 'mural' as const, radius: 0.002, priority: 2 },
+  { name: 'Balmy Alley murals', lat: 37.7479, lng: -122.4110, type: 'mural' as const, radius: 0.002, priority: 2 },
+  { name: 'Lyon Street Steps', lat: 37.7969, lng: -122.4478, type: 'viewpoint' as const, radius: 0.002, priority: 2 },
+  { name: 'Filbert Street Steps', lat: 37.8019, lng: -122.4043, type: 'nature' as const, radius: 0.002, priority: 2 },
+  { name: 'Greenwich Steps', lat: 37.8027, lng: -122.4050, type: 'nature' as const, radius: 0.002, priority: 2 },
+  { name: 'Vallejo Street Stairway', lat: 37.7994, lng: -122.4095, type: 'viewpoint' as const, radius: 0.002, priority: 2 },
+  { name: "Women\'s Building murals", lat: 37.7602, lng: -122.4213, type: 'mural' as const, radius: 0.001, priority: 2 },
+  { name: 'Mission murals on 24th St', lat: 37.7521, lng: -122.4181, type: 'mural' as const, radius: 0.003, priority: 2 },
 
   // Gardens and green spaces
-  { name: 'Japanese Tea Garden', lat: 37.7701, lng: -122.4701, type: 'nature' as const, radius: 0.002 , priority: 3 },
-  { name: 'Conservatory of Flowers', lat: 37.7726, lng: -122.4598, type: 'nature' as const, radius: 0.002 , priority: 3 },
-  { name: 'SF Botanical Garden', lat: 37.7671, lng: -122.4706, type: 'nature' as const, radius: 0.004 , priority: 3 },
-  { name: 'Garden of Shakespeare\'s Flowers', lat: 37.7702, lng: -122.4692, type: 'nature' as const, radius: 0.001 , priority: 3 },
-  { name: 'Stern Grove', lat: 37.7368, lng: -122.4722, type: 'nature' as const, radius: 0.003 , priority: 3 },
+  { name: 'Japanese Tea Garden', lat: 37.7701, lng: -122.4701, type: 'nature' as const, radius: 0.002, priority: 3 },
+  { name: 'Conservatory of Flowers', lat: 37.7726, lng: -122.4598, type: 'nature' as const, radius: 0.002, priority: 3 },
+  { name: 'SF Botanical Garden', lat: 37.7671, lng: -122.4706, type: 'nature' as const, radius: 0.004, priority: 3 },
+  { name: "Garden of Shakespeare\'s Flowers", lat: 37.7702, lng: -122.4692, type: 'nature' as const, radius: 0.001, priority: 3 },
+  { name: 'Stern Grove', lat: 37.7368, lng: -122.4722, type: 'nature' as const, radius: 0.003, priority: 3 },
 
   // Stairways and views
-  { name: 'Grandview Park', lat: 37.7553, lng: -122.4715, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Ina Coolbrith Park', lat: 37.7969, lng: -122.4148, type: 'viewpoint' as const, radius: 0.001 , priority: 2 },
-  { name: 'Kite Hill', lat: 37.7553, lng: -122.4413, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Billy Goat Hill', lat: 37.7432, lng: -122.4360, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Mount Sutro Open Space', lat: 37.7593, lng: -122.4557, type: 'nature' as const, radius: 0.003 , priority: 2 },
+  { name: 'Grandview Park', lat: 37.7553, lng: -122.4715, type: 'viewpoint' as const, radius: 0.002, priority: 2 },
+  { name: 'Ina Coolbrith Park', lat: 37.7969, lng: -122.4148, type: 'viewpoint' as const, radius: 0.001, priority: 2 },
+  { name: 'Kite Hill', lat: 37.7553, lng: -122.4413, type: 'viewpoint' as const, radius: 0.002, priority: 2 },
+  { name: 'Billy Goat Hill', lat: 37.7432, lng: -122.4360, type: 'viewpoint' as const, radius: 0.002, priority: 2 },
+  { name: 'Mount Sutro Open Space', lat: 37.7593, lng: -122.4557, type: 'nature' as const, radius: 0.003, priority: 2 },
 
-  // Historic and quirky
-  { name: 'Wild parrots of Telegraph Hill', lat: 37.8020, lng: -122.4057, type: 'nature' as const, radius: 0.003 , priority: 2 },
-  { name: 'Alemany Flea Market', lat: 37.7184, lng: -122.4133, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Haight-Ashbury corner', lat: 37.7699, lng: -122.4469, type: 'viewpoint' as const, radius: 0.001 , priority: 2 },
-  { name: 'Jack Kerouac Alley', lat: 37.7976, lng: -122.4061, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Pier 7 boardwalk', lat: 37.7980, lng: -122.3974, type: 'viewpoint' as const, radius: 0.002 , priority: 2 },
-  { name: 'Embarcadero waterfront', lat: 37.7955, lng: -122.3917, type: 'viewpoint' as const, radius: 0.003 , priority: 2 },
+  // Historic and permanent quirky spots
+  { name: 'Wild parrots of Telegraph Hill', lat: 37.8020, lng: -122.4057, type: 'nature' as const, radius: 0.003, priority: 2 },
+  { name: 'Haight-Ashbury corner', lat: 37.7699, lng: -122.4469, type: 'viewpoint' as const, radius: 0.001, priority: 2 },
+  { name: 'Jack Kerouac Alley', lat: 37.7976, lng: -122.4061, type: 'art' as const, radius: 0.001, priority: 2 },
+  { name: 'Pier 7 boardwalk', lat: 37.7980, lng: -122.3974, type: 'viewpoint' as const, radius: 0.002, priority: 2 },
+  { name: 'Embarcadero waterfront', lat: 37.7955, lng: -122.3917, type: 'viewpoint' as const, radius: 0.003, priority: 2 },
 
-  // Cool local shops and SF institutions
-  { name: 'Green Apple Books', lat: 37.7828, lng: -122.4634, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Dog Eared Books', lat: 37.7527, lng: -122.4180, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Amoeba Music', lat: 37.7696, lng: -122.4507, type: 'art' as const, radius: 0.002 , priority: 2 },
-  { name: 'Paxton Gate', lat: 37.7534, lng: -122.4185, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Adobe Books', lat: 37.7529, lng: -122.4169, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Bound Together Anarchist Book Collective', lat: 37.7696, lng: -122.4476, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: '826 Valencia pirate store', lat: 37.7523, lng: -122.4210, type: 'art' as const, radius: 0.001 , priority: 2 },
+  // Pocket parks and public spaces
+  { name: "Patricia\'s Green", lat: 37.7757, lng: -122.4229, type: 'park' as const, radius: 0.001, priority: 2 },
+  { name: 'South Park', lat: 37.7823, lng: -122.3942, type: 'park' as const, radius: 0.002, priority: 2 },
+  { name: 'Michelangelo Playground', lat: 37.8005, lng: -122.4098, type: 'park' as const, radius: 0.001, priority: 2 },
+  { name: 'Noe Valley Town Square', lat: 37.7513, lng: -122.4326, type: 'park' as const, radius: 0.001, priority: 2 },
 
-  // Beloved cafes and food spots
-  { name: 'Tartine Bakery', lat: 37.7614, lng: -122.4240, type: 'coffee' as const, radius: 0.001 , priority: 2 },
-  { name: 'Philz Coffee (original)', lat: 37.7510, lng: -122.4216, type: 'coffee' as const, radius: 0.001 , priority: 2 },
-  { name: 'Trouble Coffee', lat: 37.7536, lng: -122.5066, type: 'coffee' as const, radius: 0.001 , priority: 2 },
-  { name: 'Liguria Bakery', lat: 37.8004, lng: -122.4095, type: 'coffee' as const, radius: 0.001 , priority: 2 },
-  { name: 'Swan Oyster Depot', lat: 37.7898, lng: -122.4216, type: 'restaurant' as const, radius: 0.001 , priority: 2 },
-  { name: 'Golden Boy Pizza', lat: 37.7994, lng: -122.4076, type: 'restaurant' as const, radius: 0.001 , priority: 2 },
-
-  // Pocket parks and community spaces
-  { name: 'Cayuga Park', lat: 37.7183, lng: -122.4428, type: 'park' as const, radius: 0.002 , priority: 2 },
-  { name: 'Patricia\'s Green', lat: 37.7757, lng: -122.4229, type: 'park' as const, radius: 0.001 , priority: 2 },
-  { name: 'South Park', lat: 37.7823, lng: -122.3942, type: 'park' as const, radius: 0.002 , priority: 2 },
-  { name: 'Michelangelo Playground', lat: 37.8005, lng: -122.4098, type: 'park' as const, radius: 0.001 , priority: 2 },
-  { name: 'Noe Valley Town Square', lat: 37.7513, lng: -122.4326, type: 'park' as const, radius: 0.001 , priority: 2 },
-
-  // Street art, murals, installations
-  { name: 'Precita Eyes murals', lat: 37.7474, lng: -122.4109, type: 'mural' as const, radius: 0.002 , priority: 2 },
-  { name: 'Calle 24 Latino Cultural District', lat: 37.7521, lng: -122.4181, type: 'mural' as const, radius: 0.003 , priority: 2 },
-  { name: 'Diego Rivera mural at SFAI', lat: 37.8006, lng: -122.4058, type: 'art' as const, radius: 0.001 , priority: 1 },
-  { name: 'Defenestration building', lat: 37.7863, lng: -122.3963, type: 'art' as const, radius: 0.001 , priority: 2 },
-
-  // Interesting architecture and quirky spots
-  { name: 'Sentinel Building (Coppola)', lat: 37.7975, lng: -122.4064, type: 'viewpoint' as const, radius: 0.001 , priority: 2 },
-  { name: 'Vesuvio Cafe', lat: 37.7976, lng: -122.4060, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Specs\' bar', lat: 37.7978, lng: -122.4062, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Tosca Cafe', lat: 37.7976, lng: -122.4056, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Comstock Saloon', lat: 37.7977, lng: -122.4050, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Li Po Cocktail Lounge', lat: 37.7951, lng: -122.4065, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Church of 8 Wheels', lat: 37.7710, lng: -122.4317, type: 'art' as const, radius: 0.001 , priority: 2 },
-
-  // More Atlas Obscura / hidden gems
-  { name: 'Audium sound sculpture', lat: 37.7869, lng: -122.4377, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Humanity mural at Beach & Taylor', lat: 37.8071, lng: -122.4163, type: 'mural' as const, radius: 0.001 , priority: 2 },
-  { name: 'SF Letterpress', lat: 37.7618, lng: -122.4189, type: 'art' as const, radius: 0.001 , priority: 2 },
-  { name: 'Trick Dog bar', lat: 37.7647, lng: -122.4199, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Smuggler\'s Cove', lat: 37.7757, lng: -122.4229, type: 'bar' as const, radius: 0.001 , priority: 2 },
-  { name: 'Urban Putt', lat: 37.7637, lng: -122.4219, type: 'art' as const, radius: 0.001 , priority: 2 },
+  // Permanent street art and murals
+  { name: 'Precita Eyes murals', lat: 37.7474, lng: -122.4109, type: 'mural' as const, radius: 0.002, priority: 2 },
+  { name: 'Calle 24 Latino Cultural District', lat: 37.7521, lng: -122.4181, type: 'mural' as const, radius: 0.003, priority: 2 },
+  { name: 'Diego Rivera mural at SFAI', lat: 37.8006, lng: -122.4058, type: 'art' as const, radius: 0.001, priority: 1 },
+  { name: 'Defenestration building', lat: 37.7863, lng: -122.3963, type: 'art' as const, radius: 0.001, priority: 2 },
+  { name: 'Sentinel Building (Coppola)', lat: 37.7975, lng: -122.4064, type: 'viewpoint' as const, radius: 0.001, priority: 2 },
+  { name: 'Humanity mural at Beach & Taylor', lat: 37.8071, lng: -122.4163, type: 'mural' as const, radius: 0.001, priority: 2 },
 ];
 
 // Chain stores and junk places to filter out
@@ -342,6 +308,107 @@ function isJunkPlace(place: any): boolean {
   return false;
 }
 
+
+// Search Foursquare Places API for hidden gems (cafes, bars, bookstores, galleries)
+async function searchFoursquare(lat: number, lng: number, seenNames: Set<string>): Promise<PointOfInterest[]> {
+  if (!FOURSQUARE_API_KEY) return [];
+
+  try {
+    // Foursquare v3 category IDs for interesting places
+    const categories = [
+      '13032', // Cafe
+      '13035', // Coffee Shop
+      '13003', // Bar
+      '13009', // Cocktail Bar
+      '13065', // Restaurant
+      '17069', // Bookstore
+      '10032', // Art Gallery
+      '10025', // Museum
+      '17114', // Vintage / Thrift Store
+      '10027', // Performing Arts Venue
+    ].join(',');
+
+    const url = `https://api.foursquare.com/v3/places/search?ll=${lat},${lng}&radius=400&categories=${categories}&limit=10&sort=RELEVANCE`;
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': FOURSQUARE_API_KEY,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+
+    return (data.results || [])
+      .filter((place: any) => {
+        // Skip chains
+        if (place.chains && place.chains.length > 0) return false;
+        // Skip if already seen
+        if (seenNames.has(place.name.toLowerCase())) return false;
+        return true;
+      })
+      .slice(0, 5)
+      .map((place: any) => {
+        const catId = place.categories?.[0]?.id?.toString() || '';
+        let type: PointOfInterest['type'] = 'viewpoint';
+        if (catId === '13003' || catId === '13009') type = 'bar';
+        else if (catId === '13032' || catId === '13035') type = 'coffee';
+        else if (catId === '13065') type = 'restaurant';
+        else if (catId === '17069' || catId === '10032' || catId === '10025' || catId === '10027') type = 'art';
+
+        return {
+          name: place.name,
+          description: '',
+          type,
+          location: {
+            lat: place.geocodes?.main?.latitude || lat,
+            lng: place.geocodes?.main?.longitude || lng,
+          },
+        };
+      });
+  } catch (error) {
+    console.error('Foursquare search error:', error);
+    return [];
+  }
+}
+
+// Search OpenStreetMap Overpass API for street art, murals, and sculptures
+async function searchOverpass(lat: number, lng: number, seenNames: Set<string>): Promise<PointOfInterest[]> {
+  try {
+    const bbox = `${(lat - 0.004).toFixed(4)},${(lng - 0.005).toFixed(4)},${(lat + 0.004).toFixed(4)},${(lng + 0.005).toFixed(4)}`;
+    const query = `[out:json][timeout:5];(node["tourism"="artwork"](${bbox});node["man_made"="mural"](${bbox});node["artwork_type"="mural"](${bbox});node["artwork_type"="sculpture"](${bbox}););out body;`;
+
+    const response = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: `data=${encodeURIComponent(query)}`,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+
+    return (data.elements || [])
+      .filter((el: any) => {
+        if (!el.tags?.name) return false;
+        if (seenNames.has(el.tags.name.toLowerCase())) return false;
+        return true;
+      })
+      .slice(0, 5)
+      .map((el: any) => ({
+        name: el.tags.name,
+        description: '',
+        type: (el.tags.man_made === 'mural' || el.tags.artwork_type === 'mural') ? 'mural' as const : 'art' as const,
+        location: { lat: el.lat, lng: el.lon },
+      }));
+  } catch (error) {
+    console.error('Overpass search error:', error);
+    return [];
+  }
+}
+
 async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: number, endLat: number, endLng: number) {
   const places: PointOfInterest[] = [];
   const seenPlaces = new Set<string>();
@@ -354,7 +421,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
     return startDist < threshold || endDist < threshold;
   };
 
-  // Check for SF landmarks along the route (with priority tracking)
+  // --- SOURCE 1: Check permanent SF landmarks along the route ---
   const landmarkMatches: Array<PointOfInterest & { priority: number }> = [];
 
   for (const step of steps) {
@@ -367,9 +434,9 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
       );
 
       if (distance < landmark.radius &&
-          !seenPlaces.has(landmark.name) &&
+          !seenPlaces.has(landmark.name.toLowerCase()) &&
           !isTooCloseToStartOrEnd(landmark.lat, landmark.lng)) {
-        seenPlaces.add(landmark.name);
+        seenPlaces.add(landmark.name.toLowerCase());
         landmarkMatches.push({
           name: landmark.name,
           description: '',
@@ -392,15 +459,16 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
     places.push(...landmarkMatches);
   }
 
-  // Always search for interesting local places along the route (even if we found landmarks)
-  if (places.length < 7) {
-    // Sample more points along the route for better coverage
-    const totalSteps = steps.length;
-    const sampleCount = Math.min(8, totalSteps);
-    const sampleInterval = Math.max(1, Math.floor(totalSteps / sampleCount));
-    const sampleSteps = steps.filter((_, i) => i % sampleInterval === 0).slice(0, 8);
+  // Sample points along route for API searches
+  const totalSteps = steps.length;
+  const sampleCount = Math.min(6, totalSteps);
+  const sampleInterval = Math.max(1, Math.floor(totalSteps / sampleCount));
+  const sampleSteps = steps.filter((_, i) => i % sampleInterval === 0).slice(0, 6);
+  // Pick 2-3 representative points for Foursquare/Overpass (to save API calls)
+  const fewSampleSteps = sampleSteps.filter((_, i) => i % 2 === 0).slice(0, 3);
 
-    // Search for genuinely interesting place types
+  // --- SOURCE 2: Google Places (with business_status filtering) ---
+  if (places.length < 7) {
     const interestingTypes = [
       'park|art_gallery|museum|tourist_attraction',
       'cafe|book_store|bar|bakery',
@@ -424,19 +492,21 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
           for (const place of data.results.slice(0, 5)) {
             if (places.length >= 7) break;
 
+            // Skip permanently closed places
+            if (place.business_status && place.business_status !== 'OPERATIONAL') continue;
+
             const placeLat = place.geometry.location.lat;
             const placeLng = place.geometry.location.lng;
 
             if (isChain(place.name) ||
                 isJunkPlace(place) ||
                 seenPlaces.has(place.place_id) ||
-                seenPlaces.has(place.name) ||
+                seenPlaces.has(place.name.toLowerCase()) ||
                 isTooCloseToStartOrEnd(placeLat, placeLng)) continue;
 
             seenPlaces.add(place.place_id);
-            seenPlaces.add(place.name);
+            seenPlaces.add(place.name.toLowerCase());
 
-            // Better type mapping for local gems
             let type: PointOfInterest['type'] = 'viewpoint';
             if (place.types.includes('park')) type = 'park';
             else if (place.types.includes('art_gallery') || place.types.includes('museum')) type = 'art';
@@ -449,15 +519,53 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
               name: place.name,
               description: '',
               type,
-              location: {
-                lat: placeLat,
-                lng: placeLng,
-              },
+              location: { lat: placeLat, lng: placeLng },
             });
           }
         }
 
         await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+  }
+
+  // --- SOURCE 3: Foursquare hidden gems (cafes, bars, bookstores, galleries) ---
+  if (places.length < 7) {
+    for (const step of fewSampleSteps) {
+      if (places.length >= 7) break;
+
+      const lat = step.start_location.lat;
+      const lng = step.start_location.lng;
+
+      const foursquarePlaces = await searchFoursquare(lat, lng, seenPlaces);
+
+      for (const place of foursquarePlaces) {
+        if (places.length >= 7) break;
+        if (isTooCloseToStartOrEnd(place.location.lat, place.location.lng)) continue;
+        if (isChain(place.name)) continue;
+
+        seenPlaces.add(place.name.toLowerCase());
+        places.push(place);
+      }
+    }
+  }
+
+  // --- SOURCE 4: OpenStreetMap Overpass for street art and murals ---
+  if (places.length < 7) {
+    for (const step of fewSampleSteps) {
+      if (places.length >= 7) break;
+
+      const lat = step.start_location.lat;
+      const lng = step.start_location.lng;
+
+      const overpassPlaces = await searchOverpass(lat, lng, seenPlaces);
+
+      for (const place of overpassPlaces) {
+        if (places.length >= 7) break;
+        if (isTooCloseToStartOrEnd(place.location.lat, place.location.lng)) continue;
+
+        seenPlaces.add(place.name.toLowerCase());
+        places.push(place);
       }
     }
   }
