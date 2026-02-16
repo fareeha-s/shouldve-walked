@@ -179,7 +179,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
   const isTooCloseToStartOrEnd = (lat: number, lng: number) => {
     const startDist = Math.sqrt(Math.pow(lat - startLat, 2) + Math.pow(lng - startLng, 2));
     const endDist = Math.sqrt(Math.pow(lat - endLat, 2) + Math.pow(lng - endLng, 2));
-    const threshold = 0.002; // ~200 meters
+    const threshold = 0.005; // ~500 meters
     return startDist < threshold || endDist < threshold;
   };
 
