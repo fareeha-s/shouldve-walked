@@ -63,11 +63,10 @@ export default function Home() {
       }}
     >
       <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-16 lg:py-24">
-        <div className="mb-12 md:mb-20 pb-6 md:pb-8 flex items-end justify-between" style={{ borderBottom: '3px solid var(--th-border)' }}>
+        <div className="mb-12 md:mb-20 pb-6 md:pb-8" style={{ borderBottom: '3px solid var(--th-border)' }}>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-mono tracking-[-0.02em] font-bold leading-[0.9] uppercase">
             should i have walked.
           </h1>
-          <ThemeSwitcher current={theme} onChange={handleThemeChange} />
         </div>
 
         {/* Show input at top if no results yet, or if there was an error */}
@@ -129,7 +128,7 @@ export default function Home() {
         )}
 
         {/* Subtle credit */}
-        <div className="mt-20 mb-8 text-center">
+        <div className="mt-20 mb-8 text-center space-y-3">
           <a 
             href="https://x.com/fareehasala/status/2022844579331105191?s=20" 
             target="_blank" 
@@ -139,6 +138,9 @@ export default function Home() {
           >
             made by Fareeha in the backseat of the robotaxi
           </a>
+          <div className="flex justify-center">
+            <ThemeSwitcher current={theme} onChange={handleThemeChange} />
+          </div>
         </div>
       </div>
     </main>
