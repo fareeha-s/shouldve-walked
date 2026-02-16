@@ -55,53 +55,33 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           options
         );
 
-        // Helper to validate and set place
-        const handlePlaceSelect = (
-          place: google.maps.places.PlaceResult,
-          setter: (value: string) => void,
-          validSetter: (valid: boolean) => void,
-          inputElement: HTMLInputElement
-        ) => {
-          // If no place object, they probably just typed something
-          if (!place.geometry) {
-            console.log('No geometry - probably just typed');
-            validSetter(false);
+        // Simplified: just accept whatever Google gives us
+        const handlePlaceSelect = (autocomplete: google.maps.places.Autocomplete) => {
+          const place = autocomplete.getPlace();
+          
+          // If no formatted_address, user probably didn't select from dropdown
+          if (!place.formatted_address) {
             return;
           }
-
-          console.log('Place selected:', place.name, place.formatted_address, place.types);
-
-          // Reject if it's ONLY a generic area
-          const genericTypes = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country', 'postal_code', 'political', 'geocode'];
-          const hasOnlyGenericTypes = place.types?.every(type => genericTypes.includes(type));
-
-          if (hasOnlyGenericTypes) {
-            alert('please enter a specific address or location, not just a city or area');
-            setter('');
-            validSetter(false);
-            inputElement.value = '';
-            return;
-          }
-
-          // Use formatted_address, period. No tricks.
-          const addressToUse = place.formatted_address || place.name || '';
-          console.log('Setting address to:', addressToUse);
           
-          setter(addressToUse);
-          validSetter(true);
-          
-          // Also set the input value directly to prevent Google from overwriting it
-          inputElement.value = addressToUse;
+          // Use the formatted address directly - no validation, no tricks
+          return place.formatted_address;
         };
 
         pickupAutocomplete.addListener('place_changed', () => {
-          const place = pickupAutocomplete.getPlace();
-          handlePlaceSelect(place, setPickup, setPickupValid, pickupInputRef.current!);
+          const address = handlePlaceSelect(pickupAutocomplete);
+          if (address) {
+            setPickup(address);
+            setPickupValid(true);
+          }
         });
 
         dropoffAutocomplete.addListener('place_changed', () => {
-          const place = dropoffAutocomplete.getPlace();
-          handlePlaceSelect(place, setDropoff, setDropoffValid, dropoffInputRef.current!);
+          const address = handlePlaceSelect(dropoffAutocomplete);
+          if (address) {
+            setDropoff(address);
+            setDropoffValid(true);
+          }
         });
       }
     };
