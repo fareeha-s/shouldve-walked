@@ -243,7 +243,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
       const lng = step.start_location.lng;
 
       // Search for parks, murals, viewpoints
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=200&type=park|point_of_interest&key=${GOOGLE_MAPS_API_KEY}`;
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=200&type=park|point_of_interest|natural_feature&key=${GOOGLE_MAPS_API_KEY}`;
 
       const response = await fetch(url);
       const data = await response.json();

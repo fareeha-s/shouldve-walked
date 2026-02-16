@@ -34,6 +34,10 @@ Examples:
 - a hidden beach with views you'll never see
 - murals that took artists weeks to paint
 - stairs with a view worth the climb
+- ancient cypress trees you'll never walk under
+- blooming jacarandas lining the whole street
+
+For parks and natural features, mention the actual trees, flowers, greenery, or wildlife when relevant. SF has incredible urban nature — eucalyptus groves, cypress trees, succulents, hummingbirds, red-tailed hawks. Make people feel what they missed.
 
 Focus on what's actually special or beautiful about each place. Keep it real and simple.
 
