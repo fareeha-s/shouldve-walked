@@ -68,12 +68,14 @@ IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per lin
 
 This is an insane distance to walk. The comparisons should highlight how long this is. The walk is LONGER than these things. Dry. Sarcastic. Just stating facts.
 
-The comparison should be roughly accurate — the thing you're comparing to should actually take less than ${walkTimeMinutes} minutes. Don't compare to something that takes 5 minutes when the walk is 3 hours.
+Every comparison must be about something YOU (the person) have personally done or spent time on. NOT random facts about how long things take in the world. It should feel like a personal callout.
+
+The comparison should be roughly accurate — the thing you're comparing to should actually take less than ${walkTimeMinutes} minutes.
 
 Examples for long walks:
 - that's longer than most movies you've sat through this year
 - you've had shorter oncalls
-- that's a full deploy cycle including the rollback
+- you've spent less time in the gym this entire week
 
 Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
     } else {
@@ -82,15 +84,18 @@ Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
 
 The tone is smart tech twitter. Dry. Sarcastic. Not trying hard. Just stating observations. Think people who've shipped real products, read papers, have opinions on infra. Not YC references. Not junior.
 
-The comparison should be roughly accurate — the thing you're comparing to should actually take around ${walkTimeMinutes} minutes, give or take. Don't say something takes ${walkTimeMinutes} minutes if it obviously doesn't in real life. A little exaggeration is fine but it shouldn't be absurd.
+IMPORTANT: Every comparison must be about something YOU (the person) have personally done or could do. Things you've wasted time on, habits you have, actions you take. NOT random facts about how long other processes take in the world. It should feel like a personal callout.
+
+The comparison should be roughly accurate — the thing you're comparing to should actually take around ${walkTimeMinutes} minutes, give or take. A little exaggeration is fine but it shouldn't be absurd.
 
 AVOID: Dating jokes, relationship references, romance, going out references. Stick to tech/work/SF life only.
 
 Examples of the vibe:
 - you've spent longer waiting for CI to pass
-- that's one loom video nobody will watch
+- you scrolled twitter longer than this before getting out of bed
 - shorter than your average debugging session
 - that's how long you spent choosing a font for your landing page
+- you've spent more time than this deciding where to eat
 
 Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
 
