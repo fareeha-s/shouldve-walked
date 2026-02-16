@@ -69,18 +69,24 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
           const isPark = place.types?.includes('park');
           const isRoute = place.types?.includes('route');
 
-          // Reject if it's just a generic area (city, neighborhood, etc.)
-          const genericTypes = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country', 'postal_code'];
-          const isOnlyGeneric = place.types?.every(type => genericTypes.includes(type) || type === 'political' || type === 'geocode');
+          // Reject if it's ONLY a generic area (no specific types at all)
+          const genericTypes = ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country', 'postal_code', 'political', 'geocode'];
+          const hasOnlyGenericTypes = place.types?.every(type => genericTypes.includes(type));
 
-          if (isOnlyGeneric) {
+          if (hasOnlyGenericTypes) {
             alert('please enter a specific address or location, not just a city or area');
             setter('');
             validSetter(false);
             return;
           }
 
-          if (place.formatted_address) {
+          // For specific places (parks, landmarks, establishments), use the name
+          // This prevents "Dolores Park" from showing as "San Francisco, CA"
+          const isSpecificPlace = isPark || hasPointOfInterest || hasEstablishment;
+          if (isSpecificPlace && place.name) {
+            setter(place.name);
+            validSetter(true);
+          } else if (place.formatted_address) {
             setter(place.formatted_address);
             validSetter(true);
           } else if (place.name) {
