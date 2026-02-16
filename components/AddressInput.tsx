@@ -80,8 +80,21 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
             return;
           }
 
-          // Use formatted_address for API compatibility (Google Directions needs it)
-          if (place.formatted_address) {
+          // Smart address construction for API compatibility
+          // For specific places, use name + city to avoid generic addresses
+          const isSpecificPlace = isPark || hasPointOfInterest || hasEstablishment;
+
+          if (isSpecificPlace && place.name && place.formatted_address) {
+            // Check if formatted_address is too generic (just city name)
+            const cityOnlyPattern = /^San Francisco,?\s*(CA|California)?/i;
+            if (cityOnlyPattern.test(place.formatted_address)) {
+              // Construct better address: "Place Name, San Francisco, CA"
+              setter(`${place.name}, San Francisco, CA`);
+            } else {
+              setter(place.formatted_address);
+            }
+            validSetter(true);
+          } else if (place.formatted_address) {
             setter(place.formatted_address);
             validSetter(true);
           } else if (place.name) {
