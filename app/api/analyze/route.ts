@@ -445,7 +445,8 @@ function calculateVerdict(
   walkTimeMinutes: number,
   hasParks: boolean,
   distance: number,
-  neighborhoods: string[]
+  neighborhoods: string[],
+  poiNames: string[]
 ) {
   // Pick ride brand based on neighborhood
   const isMission = neighborhoods.some(n => n.toLowerCase().includes('mission'));
@@ -538,17 +539,33 @@ function calculateVerdict(
     };
   }
 
-  // Rain checks
-  if (weather.condition === 'rainy' && !hasParks) {
-    return {
-      worthIt: true,
-      reason: `rain + no nice views... ${ride} was totally justified 😔`,
-    };
-  }
-  if (weather.condition === 'rainy' && hasParks) {
+  // Rain: don't discourage walking, just give practical advice
+  if (weather.condition === 'rainy' || weather.condition === 'stormy') {
+    const hasStairsOrHills = poiNames.some(name =>
+      /step|stair|hill|heights|peak/i.test(name)
+    );
+
+    if (weather.condition === 'stormy') {
+      return {
+        worthIt: true,
+        reason: `stormy out there... ${ride} was the right call today`,
+      };
+    }
+    if (hasStairsOrHills) {
+      return {
+        worthIt: false,
+        reason: 'grab an umbrella and watch your step on those hills... it gets slippery 🌧️',
+      };
+    }
+    if (walkTimeMinutes > 45) {
+      return {
+        worthIt: false,
+        reason: `${walkTimeMinutes} minutes in the rain is a commitment... but SF in the rain hits different 🌧️`,
+      };
+    }
     return {
       worthIt: false,
-      reason: 'rainy park walks hit different... you missed that fresh smell 😭',
+      reason: 'a little rain never hurt anyone... just bring an umbrella 🌧️',
     };
   }
 
@@ -662,7 +679,7 @@ export async function POST(request: NextRequest) {
     const hasParks = pointsOfInterest.some(poi => poi.type === 'park');
 
     // Calculate verdict
-    const verdict = calculateVerdict(safetyWarnings, weather, healthStats.walkTimeMinutes, hasParks, directions.distance, neighborhoods);
+    const verdict = calculateVerdict(safetyWarnings, weather, healthStats.walkTimeMinutes, hasParks, directions.distance, neighborhoods, pointsOfInterest.map(p => p.name));
 
     const result: AnalysisResult = {
       route: {
