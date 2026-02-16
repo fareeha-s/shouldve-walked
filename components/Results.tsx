@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import type { AnalysisResult } from '@/lib/types';
 import RouteMap from './RouteMap';
 
@@ -9,16 +8,8 @@ interface ResultsProps {
 }
 
 export default function Results({ data }: ResultsProps) {
-  const resultsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [data]);
-
   return (
-    <div ref={resultsRef} className="mt-12 md:mt-20 space-y-8 md:space-y-16 animate-in fade-in duration-500">
+    <div className="mt-12 md:mt-20 space-y-8 md:space-y-16 animate-in fade-in duration-500">
 
       {/* Safety Warnings - Show first if exists */}
       {data.safetyWarnings.length > 0 && (
@@ -63,10 +54,22 @@ export default function Results({ data }: ResultsProps) {
                 key={index}
                 className="border-l-[4px] border-[#e67e22] pl-4 md:pl-6 py-4 bg-gradient-to-r from-[#fff9f5] to-transparent hover:from-[#fff4ed] transition-colors"
               >
-                <div className="font-mono text-sm md:text-base font-semibold text-[#2c3e50] mb-2">
-                  {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type})</span>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="font-mono text-sm md:text-base font-semibold text-[#2c3e50] mb-2">
+                      {poi.name} <span className="text-[#95a5a6] text-xs font-normal ml-2">({poi.type})</span>
+                    </div>
+                    <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(poi.name)}&query_place_id=${poi.location.lat},${poi.location.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0 px-3 py-1.5 border-[2px] border-black bg-white hover:bg-[#f1c40f] transition-colors text-xs font-mono font-semibold uppercase"
+                  >
+                    view
+                  </a>
                 </div>
-                <div className="text-xs md:text-sm text-[#555] leading-relaxed">{poi.description}</div>
               </div>
             ))}
 
