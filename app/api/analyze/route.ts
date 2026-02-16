@@ -18,6 +18,7 @@ const SKETCHY_AREAS = [
   {
     name: 'tenderloin',
     bounds: { north: 37.7877, south: 37.7805, west: -122.4181, east: -122.4089 },
+    alwaysWarn: true, // sketchy any time of day
     warnings: {
       day: "just keep your head on a swivel around here",
       night: "not the best area to be wandering after dark"
@@ -26,6 +27,7 @@ const SKETCHY_AREAS = [
   {
     name: 'mid-market',
     bounds: { north: 37.7840, south: 37.7800, west: -122.4140, east: -122.4080 },
+    alwaysWarn: true,
     warnings: {
       day: "this stretch can be a bit much",
       night: "not the vibe for a night stroll"
@@ -34,6 +36,7 @@ const SKETCHY_AREAS = [
   {
     name: 'soma (6th st)',
     bounds: { north: 37.7820, south: 37.7750, west: -122.4100, east: -122.4050 },
+    alwaysWarn: true,
     warnings: {
       day: "this block has a lot going on",
       night: "you don't want to be walking here at night"
@@ -42,24 +45,24 @@ const SKETCHY_AREAS = [
   {
     name: 'bayview',
     bounds: { north: 37.7350, south: 37.7100, west: -122.3950, east: -122.3700 },
+    alwaysWarn: false, // only warn at night
     warnings: {
-      day: "stay aware around this part of the route",
       night: "definitely not a walking-at-night situation"
     }
   },
   {
     name: 'hunters point',
     bounds: { north: 37.7350, south: 37.7200, west: -122.3850, east: -122.3600 },
+    alwaysWarn: false,
     warnings: {
-      day: "not the most pedestrian-friendly stretch",
       night: "hard pass on walking here after dark"
     }
   },
   {
     name: 'western addition',
     bounds: { north: 37.7850, south: 37.7750, west: -122.4350, east: -122.4200 },
+    alwaysWarn: false,
     warnings: {
-      day: "some blocks around here can be iffy",
       night: "not ideal for a late night walk"
     }
   },
@@ -643,9 +646,11 @@ async function getWeather(lat: number, lng: number) {
   }
 }
 
-function checkSafetyWarnings(steps: any[]) {
-  const warnings = [];
-  const hour = new Date().getHours();
+function checkSafetyWarnings(steps: any[]): { area: string; warning: string }[] {
+  const warnings: { area: string; warning: string }[] = [];
+  // Use SF timezone so night detection works on Vercel (UTC servers)
+  const sfHour = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false });
+  const hour = parseInt(sfHour, 10);
   const isNight = hour < 6 || hour > 21;
 
   for (const step of steps) {
@@ -659,10 +664,13 @@ function checkSafetyWarnings(steps: any[]) {
         lng >= area.bounds.west &&
         lng <= area.bounds.east
       ) {
-        warnings.push({
-          area: area.name,
-          warning: isNight ? area.warnings.night : area.warnings.day,
-        });
+        // Only warn during daytime for areas that are always sketchy
+        if (!isNight && !area.alwaysWarn) continue;
+
+        const warning = isNight ? (area.warnings.night || area.warnings.day) : area.warnings.day;
+        if (warning) {
+          warnings.push({ area: area.name, warning });
+        }
         break;
       }
     }
