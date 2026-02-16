@@ -125,7 +125,7 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
             setPickupValid(false);
           }}
           placeholder="dolores park, ferry building, blue bottle..."
-          className="w-full px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none transition-all"
+          className="w-full px-4 py-3 md:py-4 font-mono text-base font-semibold focus:outline-none transition-all"
           style={{
             backgroundColor: 'var(--th-surface)',
             border: '3px solid var(--th-border)',
@@ -149,7 +149,7 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
             setDropoffValid(false);
           }}
           placeholder="civic center, tartine, where you needed to be..."
-          className="w-full px-4 py-3 md:py-4 font-mono text-sm md:text-base font-semibold focus:outline-none transition-all"
+          className="w-full px-4 py-3 md:py-4 font-mono text-base font-semibold focus:outline-none transition-all"
           style={{
             backgroundColor: 'var(--th-surface)',
             border: '3px solid var(--th-border)',
