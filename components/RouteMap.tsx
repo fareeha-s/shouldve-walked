@@ -125,5 +125,5 @@ export default function RouteMap({ data }: RouteMapProps) {
     initMap();
   }, [data]);
 
-  return <div ref={mapRef} className="w-full h-[300px] md:h-[450px] lg:h-[500px] bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]" />;
+  return <div ref={mapRef} className="w-full h-[300px] md:h-[450px] lg:h-[500px]" style={{ backgroundColor: "var(--th-surface)", border: "3px solid var(--th-border)", boxShadow: "var(--th-shadow-lg)" }} />;
 }
