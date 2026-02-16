@@ -153,6 +153,10 @@ const SF_LANDMARKS = [
   { name: 'Coit Tower', lat: 37.8024, lng: -122.4058, type: 'viewpoint' as const, radius: 0.003 },
   { name: 'Palace of Fine Arts', lat: 37.8026, lng: -122.4486, type: 'art' as const, radius: 0.004 },
   { name: 'Lombard Street', lat: 37.8021, lng: -122.4187, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Ferry Building', lat: 37.7955, lng: -122.3937, type: 'viewpoint' as const, radius: 0.003 },
+  { name: 'Transamerica Pyramid', lat: 37.7952, lng: -122.4028, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'City Lights Bookstore', lat: 37.7976, lng: -122.4064, type: 'art' as const, radius: 0.001 },
+  { name: 'Grace Cathedral', lat: 37.7915, lng: -122.4131, type: 'art' as const, radius: 0.002 },
 
   // Parks and nature
   { name: 'Dolores Park', lat: 37.7596, lng: -122.4269, type: 'park' as const, radius: 0.005 },
@@ -161,26 +165,64 @@ const SF_LANDMARKS = [
   { name: 'Bernal Heights Hill', lat: 37.7416, lng: -122.4163, type: 'viewpoint' as const, radius: 0.003 },
   { name: 'Tank Hill', lat: 37.7537, lng: -122.4481, type: 'viewpoint' as const, radius: 0.002 },
   { name: 'Fort Funston', lat: 37.7133, lng: -122.5025, type: 'nature' as const, radius: 0.005 },
+  { name: 'Glen Canyon Park', lat: 37.7394, lng: -122.4413, type: 'nature' as const, radius: 0.004 },
+  { name: 'McLaren Park', lat: 37.7183, lng: -122.4213, type: 'park' as const, radius: 0.005 },
+  { name: 'Buena Vista Park', lat: 37.7696, lng: -122.4413, type: 'park' as const, radius: 0.003 },
+  { name: 'Corona Heights', lat: 37.7654, lng: -122.4387, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Twin Peaks', lat: 37.7544, lng: -122.4477, type: 'viewpoint' as const, radius: 0.003 },
+  { name: 'Presidio', lat: 37.7989, lng: -122.4662, type: 'nature' as const, radius: 0.008 },
+  { name: 'Baker Beach', lat: 37.7936, lng: -122.4836, type: 'nature' as const, radius: 0.003 },
+  { name: 'Ocean Beach', lat: 37.7605, lng: -122.5105, type: 'nature' as const, radius: 0.005 },
+  { name: 'Crissy Field', lat: 37.8039, lng: -122.4617, type: 'nature' as const, radius: 0.004 },
 
-  // Hidden gems from Atlas Obscura
+  // Hidden gems and Atlas Obscura spots
   { name: 'Wave Organ', lat: 37.8071, lng: -122.4359, type: 'art' as const, radius: 0.002 },
   { name: 'Seward Street Slides', lat: 37.7488, lng: -122.4409, type: 'park' as const, radius: 0.002 },
   { name: 'Sutro Baths ruins', lat: 37.7808, lng: -122.5144, type: 'nature' as const, radius: 0.003 },
   { name: 'Musée Mécanique', lat: 37.8099, lng: -122.5095, type: 'art' as const, radius: 0.001 },
   { name: 'Lands End Labyrinth', lat: 37.7851, lng: -122.5111, type: 'art' as const, radius: 0.001 },
   { name: 'Andy Goldsworthy Wood Line', lat: 37.7987, lng: -122.4698, type: 'art' as const, radius: 0.002 },
+  { name: 'Cayuga Park tree sculptures', lat: 37.7183, lng: -122.4428, type: 'art' as const, radius: 0.002 },
+  { name: 'Spire sculpture (Presidio)', lat: 37.7934, lng: -122.4571, type: 'art' as const, radius: 0.002 },
+  { name: 'Camera Obscura', lat: 37.7785, lng: -122.5138, type: 'art' as const, radius: 0.001 },
+  { name: 'Yoda Fountain (Presidio)', lat: 37.7989, lng: -122.4526, type: 'art' as const, radius: 0.001 },
+  { name: 'San Francisco Columbarium', lat: 37.7741, lng: -122.4583, type: 'art' as const, radius: 0.001 },
+  { name: 'Rincon Center murals', lat: 37.7900, lng: -122.3914, type: 'mural' as const, radius: 0.001 },
 
-  // Mosaic steps and murals
+  // Mosaic steps, murals, street art
   { name: '16th Avenue Tiled Steps', lat: 37.7551, lng: -122.4734, type: 'art' as const, radius: 0.002 },
   { name: 'Hidden Garden Steps', lat: 37.7565, lng: -122.4743, type: 'art' as const, radius: 0.002 },
   { name: 'Moraga Street stairs', lat: 37.7557, lng: -122.4737, type: 'art' as const, radius: 0.002 },
   { name: 'Clarion Alley murals', lat: 37.7551, lng: -122.4176, type: 'mural' as const, radius: 0.002 },
   { name: 'Balmy Alley murals', lat: 37.7479, lng: -122.4110, type: 'mural' as const, radius: 0.002 },
   { name: 'Lyon Street Steps', lat: 37.7969, lng: -122.4478, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Filbert Street Steps', lat: 37.8019, lng: -122.4043, type: 'nature' as const, radius: 0.002 },
+  { name: 'Greenwich Steps', lat: 37.8027, lng: -122.4050, type: 'nature' as const, radius: 0.002 },
+  { name: 'Vallejo Street Stairway', lat: 37.7994, lng: -122.4095, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Women's Building murals', lat: 37.7602, lng: -122.4213, type: 'mural' as const, radius: 0.001 },
+  { name: 'Mission murals on 24th St', lat: 37.7521, lng: -122.4181, type: 'mural' as const, radius: 0.003 },
 
-  // Other hidden spots
+  // Gardens and green spaces
+  { name: 'Japanese Tea Garden', lat: 37.7701, lng: -122.4701, type: 'nature' as const, radius: 0.002 },
+  { name: 'Conservatory of Flowers', lat: 37.7726, lng: -122.4598, type: 'nature' as const, radius: 0.002 },
+  { name: 'SF Botanical Garden', lat: 37.7671, lng: -122.4706, type: 'nature' as const, radius: 0.004 },
+  { name: 'Garden of Shakespeare's Flowers', lat: 37.7702, lng: -122.4692, type: 'nature' as const, radius: 0.001 },
+  { name: 'Stern Grove', lat: 37.7368, lng: -122.4722, type: 'nature' as const, radius: 0.003 },
+
+  // Stairways and views
+  { name: 'Grandview Park', lat: 37.7553, lng: -122.4715, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Ina Coolbrith Park', lat: 37.7969, lng: -122.4148, type: 'viewpoint' as const, radius: 0.001 },
+  { name: 'Kite Hill', lat: 37.7553, lng: -122.4413, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Billy Goat Hill', lat: 37.7432, lng: -122.4360, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Mount Sutro Open Space', lat: 37.7593, lng: -122.4557, type: 'nature' as const, radius: 0.003 },
+
+  // Historic and quirky
   { name: 'Wild parrots of Telegraph Hill', lat: 37.8020, lng: -122.4057, type: 'nature' as const, radius: 0.003 },
   { name: 'Alemany Flea Market', lat: 37.7184, lng: -122.4133, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Haight-Ashbury corner', lat: 37.7699, lng: -122.4469, type: 'viewpoint' as const, radius: 0.001 },
+  { name: 'Jack Kerouac Alley', lat: 37.7976, lng: -122.4061, type: 'art' as const, radius: 0.001 },
+  { name: 'Pier 7 boardwalk', lat: 37.7980, lng: -122.3974, type: 'viewpoint' as const, radius: 0.002 },
+  { name: 'Embarcadero waterfront', lat: 37.7955, lng: -122.3917, type: 'viewpoint' as const, radius: 0.003 },
 ];
 
 // Chain stores to filter out
@@ -243,7 +285,7 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
       const lng = step.start_location.lng;
 
       // Search for parks, murals, viewpoints
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=200&type=park|point_of_interest|natural_feature&key=${GOOGLE_MAPS_API_KEY}`;
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=200&type=park|point_of_interest|natural_feature|tourist_attraction|museum|art_gallery&key=${GOOGLE_MAPS_API_KEY}`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -438,11 +480,18 @@ function calculateVerdict(
     };
   }
 
-  // Edge case: Very long walks (over 90 minutes)
-  if (walkTimeMinutes > 90) {
+  // Edge case: Very long walks (over 90 minutes) - but if it's gorgeous out with parks, still guilt trip
+  if (walkTimeMinutes > 90 && !(weather.condition === 'clear' && weather.temperature > 55 && weather.temperature < 80 && hasParks && safetyWarnings.length === 0)) {
     return {
       worthIt: true,
       reason: 'this would\'ve been more exercise than most people get in a week... 😭',
+    };
+  }
+  // Perfect conditions + parks + safe = guilt trip even for long walks (up to 2 hours)
+  if (walkTimeMinutes > 60 && weather.condition === 'clear' && hasParks && safetyWarnings.length === 0) {
+    return {
+      worthIt: false,
+      reason: `${walkTimeMinutes} minutes through parks on a ${weather.temperature}° day... yeah you missed out 🥀`,
     };
   }
 
@@ -512,11 +561,18 @@ function calculateVerdict(
     };
   }
 
-  // If walk is very long, waymo was reasonable
-  if (walkTimeMinutes > 35) {
+  // Long walks: depends on conditions
+  // 45-90 min: only guilt trip if perfect conditions AND has parks
+  if (walkTimeMinutes > 60 && !(weather.condition === 'clear' && weather.temperature > 55 && weather.temperature < 80 && hasParks && safetyWarnings.length === 0)) {
     return {
       worthIt: true,
       reason: `that's a long walk... your legs thank you for the ${ride} 😔`,
+    };
+  }
+  if (walkTimeMinutes > 45 && !hasParks) {
+    return {
+      worthIt: true,
+      reason: `${walkTimeMinutes} minutes with nothing pretty to see... ${ride} was fair 😔`,
     };
   }
 
