@@ -100,7 +100,7 @@ export default function Home() {
             href="https://fareeha.sh" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-[9px] font-mono text-[#c5c5c0] hover:text-[#999] transition-colors tracking-wide opacity-40"
+            className="text-[11px] font-mono text-[#999] hover:text-[#666] transition-colors tracking-wider"
           >
             made by Fareeha in the backseat of the robotaxi
           </a>
