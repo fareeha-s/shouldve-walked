@@ -18,6 +18,7 @@ const SKETCHY_AREAS = [
   {
     name: 'tenderloin',
     bounds: { north: 37.7877, south: 37.7805, west: -122.4181, east: -122.4089 },
+    alwaysWarn: true, // sketchy any time of day
     warnings: {
       day: "just keep your head on a swivel around here",
       night: "not the best area to be wandering after dark"
@@ -26,6 +27,7 @@ const SKETCHY_AREAS = [
   {
     name: 'mid-market',
     bounds: { north: 37.7840, south: 37.7800, west: -122.4140, east: -122.4080 },
+    alwaysWarn: true,
     warnings: {
       day: "this stretch can be a bit much",
       night: "not the vibe for a night stroll"
@@ -34,6 +36,7 @@ const SKETCHY_AREAS = [
   {
     name: 'soma (6th st)',
     bounds: { north: 37.7820, south: 37.7750, west: -122.4100, east: -122.4050 },
+    alwaysWarn: true,
     warnings: {
       day: "this block has a lot going on",
       night: "you don't want to be walking here at night"
@@ -42,24 +45,24 @@ const SKETCHY_AREAS = [
   {
     name: 'bayview',
     bounds: { north: 37.7350, south: 37.7100, west: -122.3950, east: -122.3700 },
+    alwaysWarn: false, // only warn at night
     warnings: {
-      day: "stay aware around this part of the route",
       night: "definitely not a walking-at-night situation"
     }
   },
   {
     name: 'hunters point',
     bounds: { north: 37.7350, south: 37.7200, west: -122.3850, east: -122.3600 },
+    alwaysWarn: false,
     warnings: {
-      day: "not the most pedestrian-friendly stretch",
       night: "hard pass on walking here after dark"
     }
   },
   {
     name: 'western addition',
     bounds: { north: 37.7850, south: 37.7750, west: -122.4350, east: -122.4200 },
+    alwaysWarn: false,
     warnings: {
-      day: "some blocks around here can be iffy",
       night: "not ideal for a late night walk"
     }
   },
@@ -74,12 +77,75 @@ function isInBayArea(lat: number, lng: number): boolean {
   );
 }
 
-async function getDirections(pickup: string, dropoff: string) {
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-    pickup
-  )}&destination=${encodeURIComponent(
-    dropoff
-  )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boolean = false) {
+  let url: string;
+
+  if (avoidUnsafe) {
+    // First, get the normal route to see which sketchy areas it passes through
+    const normalUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+      pickup
+    )}&destination=${encodeURIComponent(
+      dropoff
+    )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+    const normalResp = await fetch(normalUrl);
+    const normalData = await normalResp.json();
+
+    // Find which sketchy areas the normal route passes through
+    const areasToAvoid = new Set<string>();
+    if (normalData.status === 'OK' && normalData.routes[0]) {
+      const normalSteps = normalData.routes[0].legs[0].steps;
+      for (const step of normalSteps) {
+        const lat = step.start_location.lat;
+        const lng = step.start_location.lng;
+        for (const area of SKETCHY_AREAS) {
+          if (lat >= area.bounds.south && lat <= area.bounds.north &&
+              lng >= area.bounds.west && lng <= area.bounds.east) {
+            areasToAvoid.add(area.name);
+          }
+        }
+      }
+    }
+
+    // Build avoidance waypoints only for areas the route actually passes through
+    const avoidancePoints: Array<{ lat: number; lng: number }> = [];
+    const AVOIDANCE_MAP: Record<string, Array<{ lat: number; lng: number }>> = {
+      'tenderloin': [{ lat: 37.7890, lng: -122.4080 }],      // North via Union Square
+      'mid-market': [{ lat: 37.7770, lng: -122.4140 }],      // South of Market
+      'soma (6th st)': [{ lat: 37.7810, lng: -122.3960 }],   // East via Embarcadero side
+      'bayview': [{ lat: 37.7380, lng: -122.4000 }],          // West side
+      'hunters point': [{ lat: 37.7380, lng: -122.3900 }],    // North/west
+      'western addition': [{ lat: 37.7870, lng: -122.4250 }], // North via Japantown
+    };
+
+    for (const areaName of areasToAvoid) {
+      const points = AVOIDANCE_MAP[areaName];
+      if (points) avoidancePoints.push(...points);
+    }
+
+    if (avoidancePoints.length > 0) {
+      const waypointStr = avoidancePoints
+        .map(wp => `via:${wp.lat},${wp.lng}`)
+        .join('|');
+      url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+        pickup
+      )}&destination=${encodeURIComponent(
+        dropoff
+      )}&mode=walking&waypoints=${encodeURIComponent(waypointStr)}&key=${GOOGLE_MAPS_API_KEY}`;
+    } else {
+      // No areas to avoid, just use normal route
+      url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+        pickup
+      )}&destination=${encodeURIComponent(
+        dropoff
+      )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+    }
+  } else {
+    url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+      pickup
+    )}&destination=${encodeURIComponent(
+      dropoff
+    )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+  }
 
   const response = await fetch(url);
   const data = await response.json();
@@ -643,9 +709,11 @@ async function getWeather(lat: number, lng: number) {
   }
 }
 
-function checkSafetyWarnings(steps: any[]) {
-  const warnings = [];
-  const hour = new Date().getHours();
+function checkSafetyWarnings(steps: any[]): { area: string; warning: string }[] {
+  const warnings: { area: string; warning: string }[] = [];
+  // Use SF timezone so night detection works on Vercel (UTC servers)
+  const sfHour = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hour12: false });
+  const hour = parseInt(sfHour, 10);
   const isNight = hour < 6 || hour > 21;
 
   for (const step of steps) {
@@ -659,10 +727,13 @@ function checkSafetyWarnings(steps: any[]) {
         lng >= area.bounds.west &&
         lng <= area.bounds.east
       ) {
-        warnings.push({
-          area: area.name,
-          warning: isNight ? area.warnings.night : area.warnings.day,
-        });
+        // Only warn during daytime for areas that are always sketchy
+        if (!isNight && !area.alwaysWarn) continue;
+
+        const warning = isNight ? (area.warnings.night || area.warnings.day) : area.warnings.day;
+        if (warning) {
+          warnings.push({ area: area.name, warning });
+        }
         break;
       }
     }
@@ -876,7 +947,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { pickup, dropoff } = await request.json();
+    const { pickup, dropoff, avoidUnsafe } = await request.json();
 
     if (!pickup || !dropoff) {
       return NextResponse.json({ error: 'Missing pickup or dropoff' }, { status: 400 });
@@ -891,7 +962,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get directions
-    const directions = await getDirections(pickup, dropoff);
+    const directions = await getDirections(pickup, dropoff, avoidUnsafe === true);
 
     // Catch absurdly short routes (under 200m / ~1 block)
     if (directions.distance < 200) {
@@ -963,6 +1034,7 @@ export async function POST(request: NextRequest) {
       healthStats,
       timeComparisons,
       safetyWarnings,
+      isSaferRoute: avoidUnsafe === true,
     };
 
     return NextResponse.json(result);

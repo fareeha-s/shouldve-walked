@@ -52,4 +52,5 @@ export interface AnalysisResult {
   healthStats: HealthStats;
   timeComparisons: TimeComparison[];
   safetyWarnings: SafetyWarning[];
+  isSaferRoute?: boolean;
 }

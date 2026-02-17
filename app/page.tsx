@@ -41,16 +41,23 @@ export default function Home() {
     localStorage.setItem('sihw-theme', t);
   };
 
-  const handleAnalyze = async (pickup: string, dropoff: string) => {
+  const [lastPickup, setLastPickup] = useState('');
+  const [lastDropoff, setLastDropoff] = useState('');
+
+  const handleAnalyze = async (pickup: string, dropoff: string, avoidUnsafe: boolean = false) => {
     setLoading(true);
     setError(null);
     setResults(null);
+    if (!avoidUnsafe) {
+      setLastPickup(pickup);
+      setLastDropoff(dropoff);
+    }
 
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pickup, dropoff }),
+        body: JSON.stringify({ pickup, dropoff, avoidUnsafe }),
       });
 
       const data = await response.json();
@@ -151,6 +158,39 @@ export default function Home() {
                 </div>
               )}
             </section>
+
+            {/* Safer route button */}
+            {results.safetyWarnings.length > 0 && !results.isSaferRoute && (
+              <div className="text-center">
+                <button
+                  onClick={() => handleAnalyze(lastPickup, lastDropoff, true)}
+                  className="px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    border: '3px solid var(--th-border)',
+                    backgroundColor: 'var(--th-surface)',
+                    color: 'var(--th-text)',
+                  }}
+                >
+                  try a safer route instead?
+                </button>
+              </div>
+            )}
+
+            {results.isSaferRoute && (
+              <div
+                className="text-center py-3 px-4 font-mono text-xs"
+                style={{ color: 'var(--th-text-label)', backgroundColor: 'var(--th-surface-alt)', border: '3px solid var(--th-border)' }}
+              >
+                this route avoids the sketchier areas. it might take a bit longer.
+                <button
+                  onClick={() => handleAnalyze(lastPickup, lastDropoff, false)}
+                  className="ml-2 underline transition-colors"
+                  style={{ color: 'var(--th-text-sec)' }}
+                >
+                  show shortest route
+                </button>
+              </div>
+            )}
 
             <Results data={results} />
 
