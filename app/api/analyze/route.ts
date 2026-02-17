@@ -214,7 +214,6 @@ async function getNeighborhoodsAlongRoute(steps: any[]) {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   return Array.from(neighborhoods);
@@ -590,7 +589,6 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
           }
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 50));
       }
     }
   }
@@ -928,7 +926,7 @@ function calculateVerdict(
   // Default: borderline but probably should've walked
   return {
     worthIt: false,
-    reason: 'perfect walking weather... safe streets.... no excuses really... 🥀',
+    reason: 'perfect walking weather... safe streets.... no excuses really... 💀',
   };
 }
 

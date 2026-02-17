@@ -46,20 +46,7 @@ Do not try to be poetic. Just be precise and the rest follows.
 
 IMPORTANT: Do NOT use quotation marks. Return ONLY the descriptions, one per line, numbered to match.`;
 
-    const poiResponse = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: poiPrompt }],
-      temperature: 0.9,
-    });
-
-    const descriptionsText = poiResponse.choices[0].message.content || '';
-    const descriptions = descriptionsText
-      .split('\n')
-      .filter((line) => line.trim())
-      .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-      .map((line) => line.replace(/^["']|["']$/g, '')); // Remove leading/trailing quotes
-
-    // Generate time comparisons
+    // Build time comparison prompt before firing both GPT calls in parallel
     let timePrompt = '';
 
     // Edge case: Very long walks (over 2 hours)
@@ -102,11 +89,26 @@ Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The h
 Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ONLY the comparisons, one per line.`;
     }
 
-    const timeResponse = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: timePrompt }],
-      temperature: 0.9,
-    });
+    // Fire both GPT calls in parallel
+    const [poiResponse, timeResponse] = await Promise.all([
+      openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: poiPrompt }],
+        temperature: 0.9,
+      }),
+      openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: timePrompt }],
+        temperature: 0.9,
+      }),
+    ]);
+
+    const descriptionsText = poiResponse.choices[0].message.content || '';
+    const descriptions = descriptionsText
+      .split('\n')
+      .filter((line) => line.trim())
+      .map((line) => line.replace(/^\d+\.\s*/, '').trim())
+      .map((line) => line.replace(/^["']|["']$/g, '')); // Remove leading/trailing quotes
 
     const timeComparisonsText = timeResponse.choices[0].message.content || '';
     const timeComparisons = timeComparisonsText
