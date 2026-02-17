@@ -32,7 +32,7 @@ export default function Home() {
     if (!loading) { setLoadingMsg(0); return; }
     const interval = setInterval(() => {
       setLoadingMsg((prev) => (prev + 1) % loadingMessages.length);
-    }, 2500);
+    }, 1500);
     return () => clearInterval(interval);
   }, [loading]);
 
@@ -139,7 +139,6 @@ export default function Home() {
                 backgroundColor: results.verdict.worthIt ? 'var(--th-surface-alt)' : 'rgba(39,174,96,0.08)',
               }}
             >
-              <div className="font-mono text-xs uppercase tracking-[0.25em] mb-3" style={{ color: 'var(--th-text-label)' }}>should you have walked?</div>
               <div
                 className="text-5xl md:text-7xl lg:text-8xl font-mono font-bold tracking-tight mb-4"
                 style={{ color: results.verdict.worthIt ? 'var(--th-text-label)' : '#27ae60' }}
