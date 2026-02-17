@@ -812,12 +812,12 @@ function calculateVerdict(
     if (hasParks && weather.condition === 'clear') {
       return {
         worthIt: false,
-        reason: `${walkTimeMinutes} minutes through parks on a ${weather.temperature}° day... yeah you missed out 🥀`,
+        reason: `${walkTimeMinutes} minutes through parks on a ${weather.temperature}° day... yeah you missed out 🤍`,
       };
     }
     return {
       worthIt: false,
-      reason: `${walkTimeMinutes} minutes is a real walk... but that's the whole point 🥀`,
+      reason: `${walkTimeMinutes} minutes is a real walk... but that's the whole point ☹️`,
     };
   }
 
@@ -831,7 +831,7 @@ function calculateVerdict(
   ) {
     return {
       worthIt: false,
-      reason: `${weather.temperature}° sunshine through a park... yeah you should feel a little guilty 🥀`,
+      reason: `${weather.temperature}° sunshine through a park... yeah you should feel a little guilty 😔`,
     };
   }
 
