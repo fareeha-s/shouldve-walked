@@ -27,7 +27,7 @@ function TypeIcon({ type }: { type: string }) {
 
   switch (type) {
     case 'viewpoint':
-      return <svg {...common}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>;
+      return <svg {...common}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" stroke="currentColor" strokeWidth="1.5"/></svg>;
     case 'park':
       return <svg {...common}><path d="M12 22V13"/><path d="M7 13l5-8 5 8H7z"/><path d="M9 9l3-5 3 5"/></svg>;
     case 'nature':
@@ -144,7 +144,7 @@ export default function Results({ data }: ResultsProps) {
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--th-link-hover)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--th-surface)'; }}
                     >
-                      &#8599;
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
                   )}
                 </div>
