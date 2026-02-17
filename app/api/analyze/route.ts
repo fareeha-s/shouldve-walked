@@ -77,12 +77,75 @@ function isInBayArea(lat: number, lng: number): boolean {
   );
 }
 
-async function getDirections(pickup: string, dropoff: string) {
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
-    pickup
-  )}&destination=${encodeURIComponent(
-    dropoff
-  )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boolean = false) {
+  let url: string;
+
+  if (avoidUnsafe) {
+    // First, get the normal route to see which sketchy areas it passes through
+    const normalUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+      pickup
+    )}&destination=${encodeURIComponent(
+      dropoff
+    )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+    const normalResp = await fetch(normalUrl);
+    const normalData = await normalResp.json();
+
+    // Find which sketchy areas the normal route passes through
+    const areasToAvoid = new Set<string>();
+    if (normalData.status === 'OK' && normalData.routes[0]) {
+      const normalSteps = normalData.routes[0].legs[0].steps;
+      for (const step of normalSteps) {
+        const lat = step.start_location.lat;
+        const lng = step.start_location.lng;
+        for (const area of SKETCHY_AREAS) {
+          if (lat >= area.bounds.south && lat <= area.bounds.north &&
+              lng >= area.bounds.west && lng <= area.bounds.east) {
+            areasToAvoid.add(area.name);
+          }
+        }
+      }
+    }
+
+    // Build avoidance waypoints only for areas the route actually passes through
+    const avoidancePoints: Array<{ lat: number; lng: number }> = [];
+    const AVOIDANCE_MAP: Record<string, Array<{ lat: number; lng: number }>> = {
+      'tenderloin': [{ lat: 37.7890, lng: -122.4080 }],      // North via Union Square
+      'mid-market': [{ lat: 37.7770, lng: -122.4140 }],      // South of Market
+      'soma (6th st)': [{ lat: 37.7810, lng: -122.3960 }],   // East via Embarcadero side
+      'bayview': [{ lat: 37.7380, lng: -122.4000 }],          // West side
+      'hunters point': [{ lat: 37.7380, lng: -122.3900 }],    // North/west
+      'western addition': [{ lat: 37.7870, lng: -122.4250 }], // North via Japantown
+    };
+
+    for (const areaName of areasToAvoid) {
+      const points = AVOIDANCE_MAP[areaName];
+      if (points) avoidancePoints.push(...points);
+    }
+
+    if (avoidancePoints.length > 0) {
+      const waypointStr = avoidancePoints
+        .map(wp => `via:${wp.lat},${wp.lng}`)
+        .join('|');
+      url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+        pickup
+      )}&destination=${encodeURIComponent(
+        dropoff
+      )}&mode=walking&waypoints=${encodeURIComponent(waypointStr)}&key=${GOOGLE_MAPS_API_KEY}`;
+    } else {
+      // No areas to avoid, just use normal route
+      url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+        pickup
+      )}&destination=${encodeURIComponent(
+        dropoff
+      )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+    }
+  } else {
+    url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(
+      pickup
+    )}&destination=${encodeURIComponent(
+      dropoff
+    )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
+  }
 
   const response = await fetch(url);
   const data = await response.json();
@@ -884,7 +947,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { pickup, dropoff } = await request.json();
+    const { pickup, dropoff, avoidUnsafe } = await request.json();
 
     if (!pickup || !dropoff) {
       return NextResponse.json({ error: 'Missing pickup or dropoff' }, { status: 400 });
@@ -899,7 +962,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get directions
-    const directions = await getDirections(pickup, dropoff);
+    const directions = await getDirections(pickup, dropoff, avoidUnsafe === true);
 
     // Catch absurdly short routes (under 200m / ~1 block)
     if (directions.distance < 200) {
@@ -971,6 +1034,7 @@ export async function POST(request: NextRequest) {
       healthStats,
       timeComparisons,
       safetyWarnings,
+      isSaferRoute: avoidUnsafe === true,
     };
 
     return NextResponse.json(result);
