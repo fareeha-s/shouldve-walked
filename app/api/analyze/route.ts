@@ -928,7 +928,7 @@ function calculateVerdict(
   // Default: borderline but probably should've walked
   return {
     worthIt: false,
-    reason: 'perfect walking weather... safe streets.... no excuses really... 🥀',
+    reason: 'perfect walking weather... safe streets.... no excuses really... 💀',
   };
 }
 
