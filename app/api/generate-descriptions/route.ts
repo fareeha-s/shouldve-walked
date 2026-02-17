@@ -57,6 +57,8 @@ This is an insane distance to walk. The comparisons should highlight how long th
 
 Every comparison must be about something YOU (the person) have personally done or spent time on. NOT random facts about how long things take in the world. It should feel like a personal callout.
 
+NEVER use first person ("I", "my"). Always use second person ("you", "your").
+
 The comparison should be roughly accurate — the thing you're comparing to should actually take less than ${walkTimeMinutes} minutes.
 
 Examples for long walks:
@@ -72,6 +74,8 @@ Generate 5 different comparisons. Return ONLY the comparisons, one per line.`;
 The tone is smart tech twitter. Dry. Sarcastic. Not trying hard. Just stating observations. Think people who've shipped real products, read papers, have opinions on infra. Not YC references. Not junior.
 
 IMPORTANT: Every comparison must be about something YOU (the person) have personally done or could do. Things you've wasted time on, habits you have, actions you take. NOT random facts about how long other processes take in the world. It should feel like a personal callout.
+
+NEVER use first person ("I", "my"). Always use second person ("you", "your").
 
 The comparison should be roughly accurate — the thing you're comparing to should actually take around ${walkTimeMinutes} minutes, give or take. A little exaggeration is fine but it shouldn't be absurd.
 
