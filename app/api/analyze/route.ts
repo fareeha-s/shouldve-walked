@@ -1003,14 +1003,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Catch absurdly long routes (over 25km / ~15 miles)
-    if (directions.distance > 25000) {
-      const miles = Math.round(directions.distance / 1609);
-      return NextResponse.json(
-        { error: `that's ${miles} miles. that's not a walk, that's a pilgrimage.` },
-        { status: 400 }
-      );
-    }
+
 
     // Run weather, neighborhoods, and places in parallel (all depend only on directions)
     const midLat = (directions.steps[0].start_location.lat + directions.steps[directions.steps.length - 1].end_location.lat) / 2;
