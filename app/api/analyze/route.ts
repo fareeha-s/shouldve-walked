@@ -935,10 +935,22 @@ function calculateVerdict(
     };
   }
 
-  // Default: borderline but probably should've walked
+  // Default: should've walked, but phrase it based on actual weather
+  if (weather.condition === 'clear') {
+    return {
+      worthIt: false,
+      reason: 'perfect walking weather... safe streets.... no excuses really... 💀',
+    };
+  }
+  if (weather.condition === 'cloudy') {
+    return {
+      worthIt: false,
+      reason: `a little overcast but ${weather.temperature}°... you would\'ve been fine 💀`,
+    };
+  }
   return {
     worthIt: false,
-    reason: 'perfect walking weather... safe streets.... no excuses really... 💀',
+    reason: `${walkTimeMinutes} minutes... you probably should\'ve walked 💀`,
   };
 }
 
