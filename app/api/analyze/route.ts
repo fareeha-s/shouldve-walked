@@ -672,6 +672,14 @@ function calculateHealthStats(distance: number, duration: number) {
   const exerciseMinutes = walkTimeMinutes;
   const exercisePercentage = Math.min(100, Math.round((exerciseMinutes / 30) * 100));
 
+  // HRV boost estimate: moderate walking improves HRV ~1-5ms per session
+  // Scales with duration but diminishing returns past 45 min
+  const hrvBoost = walkTimeMinutes <= 10 ? 1
+    : walkTimeMinutes <= 20 ? 2
+    : walkTimeMinutes <= 35 ? 3
+    : walkTimeMinutes <= 50 ? 4
+    : 5;
+
   return {
     walkTimeMinutes,
     waymoTimeMinutes,
@@ -680,6 +688,7 @@ function calculateHealthStats(distance: number, duration: number) {
     exerciseEquivalent,
     exerciseMinutes,
     exercisePercentage,
+    hrvBoost,
   };
 }
 

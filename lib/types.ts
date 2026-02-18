@@ -16,6 +16,7 @@ export interface HealthStats {
   exerciseEquivalent: string;
   exerciseMinutes: number;
   exercisePercentage: number;
+  hrvBoost: number;
 }
 
 export interface TimeComparison {
