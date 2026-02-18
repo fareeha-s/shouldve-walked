@@ -557,10 +557,15 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
 
         const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=350&type=${typeQuery}&key=${GOOGLE_MAPS_API_KEY}`;
 
-        const response = await fetch(url);
-        const data = await response.json();
+        let data: any;
+        try {
+          const response = await fetch(url);
+          data = await response.json();
+        } catch {
+          continue;
+        }
 
-        if (data.results) {
+        if (data?.results) {
           for (const place of data.results.slice(0, 5)) {
             if (places.length >= 7) break;
 
@@ -1017,8 +1022,8 @@ export async function POST(request: NextRequest) {
 
     const [weather, neighborhoods, places] = await Promise.all([
       getWeather(midLat, midLng),
-      getNeighborhoodsAlongRoute(directions.steps),
-      getPlacesAlongRoute(directions.steps, startLat, startLng, endLat, endLng),
+      getNeighborhoodsAlongRoute(directions.steps).catch(() => []),
+      getPlacesAlongRoute(directions.steps, startLat, startLng, endLat, endLng).catch(() => []),
     ]);
 
     // Generate descriptions directly (avoid self-referential HTTP call that times out on Vercel)
