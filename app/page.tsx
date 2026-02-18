@@ -154,6 +154,9 @@ export default function Home() {
               {results.weather.condition !== 'unknown' && (
                 <div className="text-sm font-mono mt-7" style={{ color: 'var(--th-text-label)' }}>
                   {results.weather.temperature}&deg;F / {Math.round((results.weather.temperature - 32) * 5 / 9)}&deg;C &bull; {results.weather.condition === 'foggy' ? 'foggy (karl says hi)' : results.weather.condition}
+                  {(results.weather.condition === 'rainy' || results.weather.condition === 'stormy') && (
+                    <span style={{ color: 'var(--th-text-muted)' }}> &bull; bring an umbrella</span>
+                  )}
                   {results.weather.rainChance >= 40 && results.weather.condition !== 'rainy' && results.weather.condition !== 'stormy' && (
                     <span style={{ color: 'var(--th-text-muted)' }}> &bull; {results.weather.rainChance}% chance of rain — bring an umbrella</span>
                   )}

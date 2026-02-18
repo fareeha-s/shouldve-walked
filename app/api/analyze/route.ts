@@ -905,7 +905,7 @@ function calculateVerdict(
     }
     return {
       worthIt: false,
-      reason: `it was raining but... ${walkTimeMinutes} minutes? you would've survived 🌧️`,
+      reason: `it was raining but... ${walkTimeMinutes} minutes? grab an umbrella and go 🌧️`,
     };
   }
 
