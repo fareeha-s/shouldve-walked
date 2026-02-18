@@ -156,9 +156,9 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
   if (data.status !== 'OK' || !data.routes[0]) {
     // Provide more helpful error messages
     if (data.status === 'ZERO_RESULTS') {
-      throw new Error('those aren\'t real places (try "dolores park" or "ferry building")');
+      throw new Error('can\'t find a walking route between those — try more specific sf addresses');
     } else if (data.status === 'NOT_FOUND') {
-      throw new Error('couldn\'t find those addresses. try actual sf locations');
+      throw new Error('couldn\'t find one or both of those places — try something like "dolores park" or "ferry building"');
     } else {
       throw new Error('waymo doesn\'t go there either');
     }
@@ -994,6 +994,15 @@ export async function POST(request: NextRequest) {
     if (directions.distance < 200) {
       return NextResponse.json(
         { error: "that's literally one block. come on." },
+        { status: 400 }
+      );
+    }
+
+    // Catch absurdly long routes (over 25km / ~15 miles)
+    if (directions.distance > 25000) {
+      const miles = Math.round(directions.distance / 1609);
+      return NextResponse.json(
+        { error: `that's ${miles} miles. that's not a walk, that's a pilgrimage.` },
         { status: 400 }
       );
     }
