@@ -863,33 +863,29 @@ function calculateVerdict(
     };
   }
 
-  // Rain: don't discourage walking, just give practical advice
+  // Rain: most people don't want to walk in the rain
   if (weather.condition === 'rainy' || weather.condition === 'stormy') {
-    const hasStairsOrHills = poiNames.some(name =>
-      /step|stair|hill|heights|peak/i.test(name)
-    );
-
     if (weather.condition === 'stormy') {
       return {
         worthIt: true,
         reason: `stormy out there... ${ride} was the right call today`,
       };
     }
-    if (hasStairsOrHills) {
+    if (walkTimeMinutes > 30) {
       return {
-        worthIt: false,
-        reason: 'grab an umbrella and watch your step on those hills... it gets slippery 🌧️',
+        worthIt: true,
+        reason: `${walkTimeMinutes} minutes in the rain? nah... ${ride} was fair`,
       };
     }
-    if (walkTimeMinutes > 45) {
+    if (walkTimeMinutes > 15) {
       return {
-        worthIt: false,
-        reason: `${walkTimeMinutes} minutes in the rain is a commitment... but SF in the rain hits different 🌧️`,
+        worthIt: true,
+        reason: `rain + ${walkTimeMinutes} minutes... you made the right call`,
       };
     }
     return {
       worthIt: false,
-      reason: 'a little rain never hurt anyone... just bring an umbrella 🌧️',
+      reason: `it was raining but... ${walkTimeMinutes} minutes? you would've survived 🌧️`,
     };
   }
 
