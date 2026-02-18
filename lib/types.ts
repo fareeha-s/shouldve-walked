@@ -47,6 +47,7 @@ export interface AnalysisResult {
   weather: {
     condition: string;
     temperature: number;
+    rainChance: number;
   };
   neighborhoods: string[];
   pointsOfInterest: PointOfInterest[];

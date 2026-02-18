@@ -702,7 +702,8 @@ function calculateHealthStats(distance: number, duration: number) {
 async function getWeather(lat: number, lng: number) {
   try {
     // Using Open-Meteo API (free, no key required)
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;
+    // Also fetch hourly precipitation probability for the next 3 hours
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code&hourly=precipitation_probability&temperature_unit=fahrenheit&forecast_hours=3`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -717,9 +718,12 @@ async function getWeather(lat: number, lng: number) {
     else if (weatherCode >= 80 && weatherCode <= 99) condition = 'stormy';
     else if (weatherCode >= 1 && weatherCode <= 3) condition = 'cloudy';
 
-    return { condition, temperature: temp };
+    // Max precipitation probability in the next 3 hours
+    const rainChance = Math.max(...(data.hourly?.precipitation_probability || [0]));
+
+    return { condition, temperature: temp, rainChance };
   } catch (error) {
-    return { condition: 'unknown', temperature: 60 };
+    return { condition: 'unknown', temperature: 60, rainChance: 0 };
   }
 }
 
