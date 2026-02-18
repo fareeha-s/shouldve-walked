@@ -167,6 +167,9 @@ export default function Results({ data }: ResultsProps) {
               <div className="text-sm md:text-base font-mono leading-relaxed" style={{ color: 'var(--th-text-sec)' }}>
                 the equivalent of {data.healthStats.exerciseEquivalent} — {data.healthStats.caloriesBurned} cal
               </div>
+              <div className="text-xs font-mono mt-2" style={{ color: 'var(--th-text-muted)' }}>
+                +{data.healthStats.hrvBoost}ms hrv boost you skipped
+              </div>
             </div>
           </div>
         </section>
