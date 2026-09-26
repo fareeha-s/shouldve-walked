@@ -744,10 +744,10 @@ function microclimateNote(
   if (start.condition === 'unknown' || end.condition === 'unknown') return null;
   const sameSky = start.condition === end.condition;
   if (sameSky && Math.abs(start.temperature - end.temperature) < 5) return null;
-  const startName = neighborhoods[0]?.toLowerCase() || 'where you started';
-  const endName = neighborhoods.length > 1 ? neighborhoods[neighborhoods.length - 1].toLowerCase() : 'where you were headed';
+  const startPlace = neighborhoods[0] ? `in ${neighborhoods[0].toLowerCase()}` : 'where you started';
+  const endPlace = neighborhoods.length > 1 ? `in ${neighborhoods[neighborhoods.length - 1].toLowerCase()}` : 'where you were headed';
   const describe = (w: { condition: string; temperature: number }) => (sameSky ? `${w.temperature}°` : w.condition);
-  return `${describe(start)} in ${startName}, ${describe(end)} in ${endName}`;
+  return `${describe(start)} ${startPlace}, ${describe(end)} ${endPlace}`;
 }
 
 async function getWeather(lat: number, lng: number) {
