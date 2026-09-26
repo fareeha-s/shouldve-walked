@@ -22,7 +22,7 @@ export function calculateVerdict(
     const distanceFeet = Math.round(distance * 3.28084);
     return {
       worthIt: false,
-      reason: `${distanceFeet} feet by ${ride}... that's honestly just lazy 🙃`,
+      reason: `${distanceFeet} feet by ${ride}... that's honestly just lazy 🤍`,
     };
   }
 
@@ -69,7 +69,7 @@ export function calculateVerdict(
     }
     return {
       worthIt: false,
-      reason: `${hoursLabel(walkTimeMinutes)} is a real walk... and a good one. that's the whole point 🚶`,
+      reason: `${hoursLabel(walkTimeMinutes)} is a real walk... and a good one. that's the whole point 🥀`,
     };
   }
 
@@ -147,13 +147,13 @@ export function calculateVerdict(
   if (weather.temperature > 85) {
     return {
       worthIt: true,
-      reason: `${weather.temperature}° is too hot to be out there voluntarily... 🥵`,
+      reason: `${weather.temperature}° is too hot to be out there voluntarily... 🫠`,
     };
   }
   if (weather.temperature < 45) {
     return {
       worthIt: true,
-      reason: `${weather.temperature}° is perfectly reasonable ${ride} weather 🥶`,
+      reason: `${weather.temperature}° is perfectly reasonable ${ride} weather ☹️`,
     };
   }
 

@@ -52,6 +52,7 @@ Examples of the vibe:
 - you've waited longer in line at tartine
 
 Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
+Don't explain or set up the joke, and don't wink at it. Specific nouns beat generic ones ("waiting for evals to finish" beats "waiting for work stuff"). No emojis, no exclamation marks, no "lol".
 
 All lowercase. Return ONLY the 5 comparisons, one per line.`;
 }
