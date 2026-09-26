@@ -65,7 +65,9 @@ export default function Results({ data }: ResultsProps) {
         >
           <h2 className="text-base md:text-lg font-mono font-semibold mb-4 md:mb-6 uppercase tracking-[0.2em]" style={{ color: 'var(--th-error)' }}>safety note for this route</h2>
           <div className="space-y-3">
-            {data.safetyWarnings.map((warning, index) => (
+            {data.safetyWarnings
+              .filter((w, i, all) => all.findIndex((x) => x.warning === w.warning) === i)
+              .map((warning, index) => (
               <div
                 key={index}
                 className="text-sm md:text-base font-mono leading-relaxed"
