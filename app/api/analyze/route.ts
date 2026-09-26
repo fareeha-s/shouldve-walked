@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { AnalysisResult, PointOfInterest } from '@/lib/types';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { generateText } from '@/lib/claude';
+import { FALLBACK_DESCRIPTIONS, FALLBACK_TIME_COMPARISONS } from '@/lib/fallbacks';
 
 export const maxDuration = 30;
 
@@ -71,25 +72,8 @@ const SKETCHY_AREAS = [
   },
 ];
 
-// Pre-written lines used when the AI is unavailable (e.g. spend limit reached)
 const DAILY_LIMIT_MESSAGE =
   "too many people are finding out what they missed today. the map is resting. try again tomorrow, or just go for a walk.";
-
-const FALLBACK_DESCRIPTIONS = [
-  'you would have walked right past it. you did not.',
-  'it was there the whole time.',
-  'smells better in person.',
-  'people who walked here seemed fine.',
-  'the window seats looked good from the car.',
-  'someone locally famous probably works here.',
-];
-const FALLBACK_TIME_COMPARISONS = [
-  "shorter than the time you spent picking a spotify playlist for the ride",
-  "about as long as you've spent reading terms of service, ever",
-  "less time than your last 'quick sync'",
-  "you've waited longer for a build to finish",
-  "roughly one unread slack channel",
-];
 
 function isInBayArea(lat: number, lng: number): boolean {
   return (
@@ -635,17 +619,17 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
 
   // --- SOURCE 3: Foursquare hidden gems (cafes, bars, bookstores, galleries) ---
   if (places.length < 7) {
-    for (const step of fewSampleSteps) {
+    // Free source: query all sample points at once, then use results in route order
+    const batches = await Promise.all(
+      fewSampleSteps.map((step) => searchFoursquare(step.start_location.lat, step.start_location.lng, seenPlaces))
+    );
+    for (const foursquarePlaces of batches) {
       if (places.length >= 7) break;
-
-      const lat = step.start_location.lat;
-      const lng = step.start_location.lng;
-
-      const foursquarePlaces = await searchFoursquare(lat, lng, seenPlaces);
 
       for (const place of foursquarePlaces) {
         if (places.length >= 7) break;
         if (isTooCloseToStartOrEnd(place.location.lat, place.location.lng)) continue;
+        if (seenPlaces.has(place.name.toLowerCase())) continue;
         if (isChain(place.name)) continue;
 
         seenPlaces.add(place.name.toLowerCase());
@@ -656,17 +640,17 @@ async function getPlacesAlongRoute(steps: any[], startLat: number, startLng: num
 
   // --- SOURCE 4: OpenStreetMap Overpass for street art and murals ---
   if (places.length < 7) {
-    for (const step of fewSampleSteps) {
+    // Free source: query all sample points at once, then use results in route order
+    const batches = await Promise.all(
+      fewSampleSteps.map((step) => searchOverpass(step.start_location.lat, step.start_location.lng, seenPlaces))
+    );
+    for (const overpassPlaces of batches) {
       if (places.length >= 7) break;
-
-      const lat = step.start_location.lat;
-      const lng = step.start_location.lng;
-
-      const overpassPlaces = await searchOverpass(lat, lng, seenPlaces);
 
       for (const place of overpassPlaces) {
         if (places.length >= 7) break;
         if (isTooCloseToStartOrEnd(place.location.lat, place.location.lng)) continue;
+        if (seenPlaces.has(place.name.toLowerCase())) continue;
 
         seenPlaces.add(place.name.toLowerCase());
         places.push(place);
@@ -1006,7 +990,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { pickup, dropoff, avoidUnsafe } = await request.json();
+    const { pickup, dropoff, avoidUnsafe, skipAi } = await request.json();
 
     if (!pickup || !dropoff) {
       return NextResponse.json({ error: 'Missing pickup or dropoff' }, { status: 400 });
@@ -1052,7 +1036,8 @@ export async function POST(request: NextRequest) {
     let descriptions: string[] = [];
     let timeComparisons: { text: string }[] = [];
 
-    if (process.env.ANTHROPIC_API_KEY) {
+    // skipAi: the page fetches descriptions separately so results show sooner
+    if (process.env.ANTHROPIC_API_KEY && !skipAi) {
       try {
 
         const poiPrompt = `You are writing one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. Factual but with elevated language. You know these places well and you are simply stating what is there. Not trying to be funny or clever. Just describing what you would see, hear, or feel if you walked past.
@@ -1151,7 +1136,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
     // Add descriptions to places
     const pointsOfInterest = places.map((place, i) => ({
       ...place,
-      description: descriptions[i] || FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length],
+      description: skipAi ? '' : descriptions[i] || FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length],
     }));
 
     // Calculate health stats
@@ -1183,7 +1168,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       neighborhoods,
       pointsOfInterest,
       healthStats,
-      timeComparisons: timeComparisons.length
+      timeComparisons: timeComparisons.length || skipAi
         ? timeComparisons
         : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
       safetyWarnings,
