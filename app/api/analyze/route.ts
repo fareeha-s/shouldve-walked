@@ -72,6 +72,9 @@ const SKETCHY_AREAS = [
 ];
 
 // Pre-written lines used when the AI is unavailable (e.g. spend limit reached)
+const DAILY_LIMIT_MESSAGE =
+  "too many people are finding out what they missed today. the map is resting. try again tomorrow, or just go for a walk.";
+
 const FALLBACK_DESCRIPTIONS = [
   'you would have walked right past it. you did not.',
   'it was there the whole time.',
@@ -174,6 +177,8 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     // Provide more helpful error messages
     if (data.status === 'ZERO_RESULTS') {
       throw new Error('can\'t find a walking route between those — try more specific sf addresses');
+    } else if (['OVER_QUERY_LIMIT', 'OVER_DAILY_LIMIT', 'REQUEST_DENIED'].includes(data.status)) {
+      throw new Error(DAILY_LIMIT_MESSAGE);
     } else if (data.status === 'NOT_FOUND') {
       throw new Error('couldn\'t find one or both of those places — try something like "dolores park" or "ferry building"');
     } else {
@@ -1189,7 +1194,8 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       if (error.message.includes('aren\'t real places') ||
           error.message.includes('couldn\'t find') ||
           error.message.includes('waymo doesn\'t go there') ||
-          error.message.includes('only works in the bay area')) {
+          error.message.includes('only works in the bay area') ||
+          error.message === DAILY_LIMIT_MESSAGE) {
         return NextResponse.json(
           { error: error.message },
           { status: 400 }
