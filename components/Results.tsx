@@ -1,6 +1,7 @@
 'use client';
 
 import type { AnalysisResult } from '@/lib/types';
+import { hoursLabel } from '@/lib/formatTime';
 import RouteMap from './RouteMap';
 
 interface ResultsProps {
@@ -94,13 +95,24 @@ export default function Results({ data }: ResultsProps) {
             }}
           >
             <div className="text-2xl md:text-3xl font-mono font-bold tracking-tight leading-none" style={{ color: 'var(--th-text)' }}>
-              {data.healthStats.walkTimeMinutes}
+              {data.healthStats.walkTimeMinutes < 60 ? data.healthStats.walkTimeMinutes : hoursLabel(data.healthStats.walkTimeMinutes)}
             </div>
             <div className="text-[10px] font-mono uppercase tracking-[0.2em] mt-1" style={{ color: 'var(--th-text-label)' }}>
-              min walk
+              {data.healthStats.walkTimeMinutes < 60 ? 'min walk' : `walk · ${data.healthStats.walkTimeMinutes} min`}
             </div>
           </div>
         </div>
+        {data.googleMapsUrl && (
+          <a
+            href={data.googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-xs md:text-sm font-mono underline"
+            style={{ color: 'var(--th-text-sec)' }}
+          >
+            open this walk in google maps ↗
+          </a>
+        )}
         {data.timeComparisons.length > 0 && data.timeComparisons[0].text && (
           <div className="mt-3 text-xs md:text-sm font-mono text-right" style={{ color: 'var(--th-text-label)' }}>
             {data.timeComparisons[0].text}
@@ -238,7 +250,7 @@ export default function Results({ data }: ResultsProps) {
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--th-stat-hover-3)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--th-border)'; }}
         >
-          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight" style={{ color: 'var(--th-text)' }}>{timeSaved}<span className="text-lg md:text-2xl"> min</span></div>
+          <div className="text-3xl md:text-5xl font-mono font-bold mb-2 tracking-tight" style={{ color: 'var(--th-text)' }}>{timeSaved < 60 ? <>{timeSaved}<span className="text-lg md:text-2xl"> min</span></> : <>{hoursLabel(timeSaved)}<span className="text-lg md:text-2xl"> ({timeSaved} min)</span></>}</div>
           <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em]" style={{ color: 'var(--th-text-muted)' }}>saved by car</div>
         </div>
       </section>

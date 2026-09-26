@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { formatDuration } from '@/lib/formatTime';
 import AddressInput from '@/components/AddressInput';
 import Results from '@/components/Results';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
@@ -196,7 +197,7 @@ export default function Home() {
                     color: 'var(--th-text)',
                   }}
                 >
-                  try a safer route instead?{results.saferRouteExtraMinutes ? ` (+${results.saferRouteExtraMinutes} min)` : ''}
+                  try a safer route instead?{results.saferRouteExtraMinutes ? ` (+${formatDuration(results.saferRouteExtraMinutes)})` : ''}
                 </button>
               </div>
             )}
@@ -207,7 +208,7 @@ export default function Home() {
                 style={{ color: 'var(--th-text-label)', backgroundColor: 'var(--th-surface-alt)', border: '3px solid var(--th-border)' }}
               >
                 this isn&apos;t the quickest route, but it&apos;s the safest one we found.
-                {results.extraWalkMinutes ? ` (+${results.extraWalkMinutes} min)` : ''}
+                {results.extraWalkMinutes ? ` (+${formatDuration(results.extraWalkMinutes)})` : ''}
                 <button
                   onClick={() => handleAnalyze(lastPickup, lastDropoff, 'quickest')}
                   className="ml-2 underline transition-colors"

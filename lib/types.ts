@@ -57,4 +57,5 @@ export interface AnalysisResult {
   isSaferRoute?: boolean;
   extraWalkMinutes?: number;
   saferRouteExtraMinutes?: number;
+  googleMapsUrl?: string;
 }
