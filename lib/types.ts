@@ -49,6 +49,7 @@ export interface AnalysisResult {
     temperature: number;
     rainChance: number;
   };
+  weatherNote?: string | null;
   neighborhoods: string[];
   pointsOfInterest: PointOfInterest[];
   healthStats: HealthStats;

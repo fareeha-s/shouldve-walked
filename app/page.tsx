@@ -181,6 +181,9 @@ export default function Home() {
                   {results.weather.rainChance >= 40 && results.weather.condition !== 'rainy' && results.weather.condition !== 'stormy' && (
                     <span style={{ color: 'var(--th-text-muted)' }}> &bull; {results.weather.rainChance}% chance of rain — bring an umbrella</span>
                   )}
+                  {results.weatherNote && (
+                    <div className="mt-1" style={{ color: 'var(--th-text-muted)' }}>{results.weatherNote}</div>
+                  )}
                 </div>
               )}
             </section>
