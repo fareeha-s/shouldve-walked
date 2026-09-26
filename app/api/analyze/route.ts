@@ -71,6 +71,26 @@ const SKETCHY_AREAS = [
   },
 ];
 
+// Pre-written lines used when the AI is unavailable (e.g. spend limit reached)
+const DAILY_LIMIT_MESSAGE =
+  "too many people are finding out what they missed today. the map is resting. try again tomorrow, or just go for a walk.";
+
+const FALLBACK_DESCRIPTIONS = [
+  'you would have walked right past it. you did not.',
+  'it was there the whole time.',
+  'smells better in person.',
+  'people who walked here seemed fine.',
+  'the window seats looked good from the car.',
+  'someone locally famous probably works here.',
+];
+const FALLBACK_TIME_COMPARISONS = [
+  "shorter than the time you spent picking a spotify playlist for the ride",
+  "about as long as you've spent reading terms of service, ever",
+  "less time than your last 'quick sync'",
+  "you've waited longer for a build to finish",
+  "roughly one unread slack channel",
+];
+
 function isInBayArea(lat: number, lng: number): boolean {
   return (
     lat >= BAY_AREA_BOUNDS.south &&
@@ -157,6 +177,8 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     // Provide more helpful error messages
     if (data.status === 'ZERO_RESULTS') {
       throw new Error('can\'t find a walking route between those — try more specific sf addresses');
+    } else if (['OVER_QUERY_LIMIT', 'OVER_DAILY_LIMIT', 'REQUEST_DENIED'].includes(data.status)) {
+      throw new Error(DAILY_LIMIT_MESSAGE);
     } else if (data.status === 'NOT_FOUND') {
       throw new Error('couldn\'t find one or both of those places — try something like "dolores park" or "ferry building"');
     } else {
@@ -1123,7 +1145,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
     // Add descriptions to places
     const pointsOfInterest = places.map((place, i) => ({
       ...place,
-      description: descriptions[i] || 'a place worth seeing',
+      description: descriptions[i] || FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length],
     }));
 
     // Calculate health stats
@@ -1155,7 +1177,9 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       neighborhoods,
       pointsOfInterest,
       healthStats,
-      timeComparisons,
+      timeComparisons: timeComparisons.length
+        ? timeComparisons
+        : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
       safetyWarnings,
       isSaferRoute: avoidUnsafe === true,
     };
@@ -1170,7 +1194,8 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       if (error.message.includes('aren\'t real places') ||
           error.message.includes('couldn\'t find') ||
           error.message.includes('waymo doesn\'t go there') ||
-          error.message.includes('only works in the bay area')) {
+          error.message.includes('only works in the bay area') ||
+          error.message === DAILY_LIMIT_MESSAGE) {
         return NextResponse.json(
           { error: error.message },
           { status: 400 }
