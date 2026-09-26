@@ -71,6 +71,23 @@ const SKETCHY_AREAS = [
   },
 ];
 
+// Pre-written lines used when the AI is unavailable (e.g. spend limit reached)
+const FALLBACK_DESCRIPTIONS = [
+  'you would have walked right past it. you did not.',
+  'it was there the whole time.',
+  'smells better in person.',
+  'people who walked here seemed fine.',
+  'the window seats looked good from the car.',
+  'someone locally famous probably works here.',
+];
+const FALLBACK_TIME_COMPARISONS = [
+  "shorter than the time you spent picking a spotify playlist for the ride",
+  "about as long as you've spent reading terms of service, ever",
+  "less time than your last 'quick sync'",
+  "you've waited longer for a build to finish",
+  "roughly one unread slack channel",
+];
+
 function isInBayArea(lat: number, lng: number): boolean {
   return (
     lat >= BAY_AREA_BOUNDS.south &&
@@ -1123,7 +1140,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
     // Add descriptions to places
     const pointsOfInterest = places.map((place, i) => ({
       ...place,
-      description: descriptions[i] || 'a place worth seeing',
+      description: descriptions[i] || FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length],
     }));
 
     // Calculate health stats
@@ -1155,7 +1172,9 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       neighborhoods,
       pointsOfInterest,
       healthStats,
-      timeComparisons,
+      timeComparisons: timeComparisons.length
+        ? timeComparisons
+        : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
       safetyWarnings,
       isSaferRoute: avoidUnsafe === true,
     };
