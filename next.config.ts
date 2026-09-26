@@ -1,7 +1,16 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'shouldve-walked.vercel.app' }],
+        destination: 'https://justwalk.fareeha.sh/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

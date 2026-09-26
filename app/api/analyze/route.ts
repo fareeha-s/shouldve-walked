@@ -84,10 +84,15 @@ function isInBayArea(lat: number, lng: number): boolean {
   );
 }
 
-async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boolean = false) {
+// Safest detours longer than this are offered, not forced
+const MAX_AUTO_DETOUR_SECONDS = 15 * 60;
+
+async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boolean = false, capDetour: boolean = false) {
   let url: string;
   let rerouted = false;
   let quickestDuration: number | null = null;
+  let normalData: any = null;
+  let declinedDetourSeconds = 0;
 
   if (avoidUnsafe) {
     // First, get the normal route to see which sketchy areas it passes through
@@ -97,7 +102,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
       dropoff
     )}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
     const normalResp = await fetch(normalUrl);
-    const normalData = await normalResp.json();
+    normalData = await normalResp.json();
 
     // Find which sketchy areas the normal route passes through
     const areasToAvoid = new Set<string>();
@@ -159,7 +164,17 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
   }
 
   const response = await fetch(url);
-  const data = await response.json();
+  let data = await response.json();
+
+  // Detour too long: show the quickest route and let the user opt into the safer one
+  if (capDetour && rerouted && quickestDuration !== null && data.status === 'OK' && data.routes[0]) {
+    const detour = data.routes[0].legs[0].duration.value - quickestDuration;
+    if (detour > MAX_AUTO_DETOUR_SECONDS) {
+      declinedDetourSeconds = detour;
+      data = normalData;
+      rerouted = false;
+    }
+  }
 
   if (data.status !== 'OK' || !data.routes[0]) {
     // Provide more helpful error messages
@@ -201,6 +216,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     bounds: route.bounds,
     steps: leg.steps,
     rerouted,
+    declinedDetourSeconds,
     extraSeconds: rerouted && quickestDuration !== null ? Math.max(0, leg.duration.value - quickestDuration) : 0,
   };
 }
@@ -990,7 +1006,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { pickup, dropoff, avoidUnsafe, skipAi } = await request.json();
+    const { pickup, dropoff, avoidUnsafe, skipAi, route } = await request.json();
+    // route: 'auto' (safest unless the detour is long), 'safest', or 'quickest'
+    const routeMode = route ?? (avoidUnsafe === true ? 'safest' : 'quickest');
 
     if (!pickup || !dropoff) {
       return NextResponse.json({ error: 'Missing pickup or dropoff' }, { status: 400 });
@@ -1005,7 +1023,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get directions
-    const directions = await getDirections(pickup, dropoff, avoidUnsafe === true);
+    const directions = await getDirections(pickup, dropoff, routeMode !== 'quickest', routeMode === 'auto');
 
     // Catch absurdly short routes (under 200m / ~1 block)
     if (directions.distance < 200) {
@@ -1174,6 +1192,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       safetyWarnings,
       isSaferRoute: directions.rerouted,
       extraWalkMinutes: Math.round(directions.extraSeconds / 60),
+      saferRouteExtraMinutes: Math.round(directions.declinedDetourSeconds / 60),
     };
 
     return NextResponse.json(result);

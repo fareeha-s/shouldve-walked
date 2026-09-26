@@ -56,4 +56,5 @@ export interface AnalysisResult {
   safetyWarnings: SafetyWarning[];
   isSaferRoute?: boolean;
   extraWalkMinutes?: number;
+  saferRouteExtraMinutes?: number;
 }
