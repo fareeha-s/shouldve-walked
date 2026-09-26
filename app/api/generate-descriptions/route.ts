@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from '@/lib/claude';
+import { FALLBACK_DESCRIPTIONS, FALLBACK_TIME_COMPARISONS } from '@/lib/fallbacks';
+
+function fallbackResponse(count: number) {
+  return NextResponse.json({
+    descriptions: Array.from({ length: count }, (_, i) => FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length]),
+    timeComparisons: FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
+  });
+}
 
 export async function POST(request: NextRequest) {
+  let placeCount = 7;
   try {
-    const { places, walkTimeMinutes } = await request.json();
+    const body = await request.json();
+    // Only accept what the page sends: up to 7 short place names and a sane walk time
+    const places = (Array.isArray(body.places) ? body.places : []).slice(0, 7).map((p: any) => ({
+      name: String(p?.name ?? '').slice(0, 80),
+      type: String(p?.type ?? '').slice(0, 20),
+    }));
+    const walkTimeMinutes = Math.min(Math.max(Math.round(Number(body.walkTimeMinutes) || 0), 1), 1000);
+    placeCount = places.length;
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return NextResponse.json(
-        { error: 'Anthropic API key not configured' },
-        { status: 500 }
-      );
+    if (!process.env.ANTHROPIC_API_KEY || places.length === 0) {
+      return fallbackResponse(placeCount);
     }
 
     // Generate POI descriptions
@@ -108,14 +121,11 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       .map((text) => ({ text }));
 
     return NextResponse.json({
-      descriptions,
-      timeComparisons,
+      descriptions: Array.from({ length: placeCount }, (_, i) => descriptions[i] || FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length]),
+      timeComparisons: timeComparisons.length ? timeComparisons : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
     });
   } catch (error) {
     console.error('Error generating descriptions:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate descriptions' },
-      { status: 500 }
-    );
+    return fallbackResponse(placeCount);
   }
 }

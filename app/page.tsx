@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AddressInput from '@/components/AddressInput';
 import Results from '@/components/Results';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
@@ -10,6 +10,7 @@ import { type ThemeName, themes } from '@/lib/themes';
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
+  const latestRequest = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeName>('paper');
   const [loadingMsg, setLoadingMsg] = useState(0);
@@ -56,7 +57,7 @@ export default function Home() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pickup, dropoff, avoidUnsafe }),
+        body: JSON.stringify({ pickup, dropoff, avoidUnsafe, skipAi: true }),
       });
 
       const data = await response.json();
@@ -66,7 +67,27 @@ export default function Home() {
         return;
       }
 
+      // Show the route right away, then fill in the written descriptions
       setResults(data);
+      const requestId = ++latestRequest.current;
+      fetch('/api/generate-descriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          places: data.pointsOfInterest,
+          walkTimeMinutes: data.healthStats.walkTimeMinutes,
+        }),
+      })
+        .then((res) => res.json())
+        .then(({ descriptions, timeComparisons }) => {
+          if (requestId !== latestRequest.current) return;
+          setResults((prev) => prev && {
+            ...prev,
+            pointsOfInterest: prev.pointsOfInterest.map((poi, i) => ({ ...poi, description: descriptions?.[i] || poi.description })),
+            timeComparisons: timeComparisons?.length ? timeComparisons : prev.timeComparisons,
+          });
+        })
+        .catch(() => {});
     } catch (error) {
       console.error('Error analyzing route:', error);
       setError('failed to analyze route');

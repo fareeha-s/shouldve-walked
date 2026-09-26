@@ -150,7 +150,7 @@ export default function Results({ data }: ResultsProps) {
                     </a>
                   )}
                 </div>
-                <div className="text-sm font-serif italic leading-relaxed mt-1" style={{ color: 'var(--th-text-muted)' }}>{poi.description}</div>
+                <div className="text-sm font-serif italic leading-relaxed mt-1" style={{ color: 'var(--th-text-muted)' }}>{poi.description || <span className="animate-pulse">…</span>}</div>
               </div>
             ))}
 
