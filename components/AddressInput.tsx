@@ -15,6 +15,25 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
   const [dropoffValid, setDropoffValid] = useState(false);
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
+  const [mapsResting, setMapsResting] = useState(false);
+
+  // Suggestions silently stop when Google's daily cap is hit. If someone has typed
+  // but nothing shows up, ask Google once why, and explain instead of looking broken.
+  const typed = (pickupValid ? '' : pickup) || (dropoffValid ? '' : dropoff);
+  useEffect(() => {
+    if (mapsResting || typed.trim().length < 4) return;
+    const timer = setTimeout(() => {
+      if (document.querySelector('.pac-container .pac-item')) return;
+      const places = window.google?.maps?.places;
+      if (!places) return;
+      new places.AutocompleteService().getPlacePredictions({ input: typed }, (_results, status) => {
+        if (status === places.PlacesServiceStatus.OVER_QUERY_LIMIT || status === places.PlacesServiceStatus.REQUEST_DENIED) {
+          setMapsResting(true);
+        }
+      });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [typed, mapsResting]);
 
   useEffect(() => {
     const initAutocomplete = async () => {
@@ -171,6 +190,11 @@ export default function AddressInput({ onAnalyze, loading }: AddressInputProps) 
       >
         {loading ? 'calculating...' : 'go'}
       </button>
+      {mapsResting && (
+        <p className="text-sm font-mono text-center" style={{ color: 'var(--th-text-muted)' }}>
+          too many people are finding out what they missed today. the map is resting. try again tomorrow, or just go for a walk.
+        </p>
+      )}
     </form>
   );
 }
