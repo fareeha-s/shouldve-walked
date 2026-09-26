@@ -34,25 +34,24 @@ export function timePrompt(walkTimeMinutes: number): string {
 
 ${length}
 
-Each one is a gentle personal callout about how the reader spends time: "you've spent longer ___". Second person only ("you", "your"), never "I" or "my".
+Each one is a personal callout about how the reader spends time. Second person only ("you", "your"), never "I" or "my".
 
-Make the 5 genuinely different. Mix everyday life with a little SF/tech life, so anyone gets it:
-- phones and scrolling, group chats, streaming, podcasts, waiting in lines
-- deciding what to eat, getting ready, commuting, errands, emails
-- at most ONE tech-work reference (meetings, slack, waiting for something to load)
+The audience is SF tech twitter: people who've shipped real products, read papers, have opinions on infra. The tone is smart tech twitter. Dry, sarcastic, not trying hard. Not YC references. Not junior.
+
+Make the 5 genuinely different from each other. Mostly tech/work life (CI, deploys, code review, slack, standups, infra, evals, tabs open), with one or two about SF life (lines for pastries, apartment hunting, waiting on a robotaxi). No more than one about deploys or builds.
 
 Avoid:
-- repeating the same idea (no more than one about deploys, builds or code)
 - anything about exercise, fitness, bodies or weight, or that makes walking sound like a chore. This site encourages walking.
 - dating, relationships, drinking.
 
-Tone: flat, observational, kind. The humor comes from the truth of it.
-
 Examples of the vibe:
-- you scrolled longer than this before getting out of bed
-- that's about how long you spent picking a show and then not watching it
-- you've waited longer in line for a pastry
-- shorter than the group chat debate about where to eat
+- you've spent longer waiting for CI to pass
+- you scrolled twitter longer than this before getting out of bed
+- shorter than your average debugging session
+- that's how long you spent choosing a font for your landing page
+- you've waited longer in line at tartine
+
+Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
 
 All lowercase. Return ONLY the 5 comparisons, one per line.`;
 }
