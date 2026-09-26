@@ -920,20 +920,10 @@ export async function POST(request: NextRequest) {
           generateText(timeComparisonPrompt),
         ]);
 
-        const descriptionsText = poiResponse;
-        descriptions = descriptionsText
-          .split('\n')
-          .filter((line) => line.trim())
-          .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-          .map((line) => line.replace(/^["']|["']$/g, ''));
+        descriptions = cleanLines(poiResponse);
 
-        const timeComparisonsText = timeResponse;
-        timeComparisons = timeComparisonsText
-          .split('\n')
-          .filter((line) => line.trim())
-          .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-          .map((line) => line.replace(/^-\s*/, '').trim())
-          .filter((line) => line.length > 0)
+        timeComparisons = cleanLines(timeResponse)
+          .sort(() => Math.random() - 0.5)
           .map((text) => ({ text }));
       } catch (error) {
         console.error('Claude error (non-fatal):', error);

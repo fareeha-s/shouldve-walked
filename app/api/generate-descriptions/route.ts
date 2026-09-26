@@ -36,20 +36,11 @@ export async function POST(request: NextRequest) {
       generateText(timeComparisonPrompt),
     ]);
 
-    const descriptionsText = poiResponse;
-    const descriptions = descriptionsText
-      .split('\n')
-      .filter((line) => line.trim())
-      .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-      .map((line) => line.replace(/^["']|["']$/g, '')); // Remove leading/trailing quotes
+    const descriptions = cleanLines(poiResponse);
 
-    const timeComparisonsText = timeResponse;
-    const timeComparisons = timeComparisonsText
-      .split('\n')
-      .filter((line) => line.trim())
-      .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-      .map((line) => line.replace(/^-\s*/, '').trim())
-      .filter((line) => line.length > 0)
+    // Shuffle so the one shown first isn't always the same kind of joke
+    const timeComparisons = cleanLines(timeResponse)
+      .sort(() => Math.random() - 0.5)
       .map((text) => ({ text }));
 
     return NextResponse.json({
