@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "should i have walked.",
+    url: "https://justwalk.fareeha.sh",
   },
   twitter: {
     card: "summary_large_image",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     description: "find out what you missed by taking a waymo instead of walking",
     creator: "@fareehasala",
   },
-  metadataBase: new URL("https://shouldihavewalked.com"),
+  metadataBase: new URL("https://justwalk.fareeha.sh"),
 };
 
 export default function RootLayout({
