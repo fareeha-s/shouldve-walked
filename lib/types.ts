@@ -55,4 +55,5 @@ export interface AnalysisResult {
   timeComparisons: TimeComparison[];
   safetyWarnings: SafetyWarning[];
   isSaferRoute?: boolean;
+  extraWalkMinutes?: number;
 }

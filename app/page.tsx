@@ -186,6 +186,7 @@ export default function Home() {
                 style={{ color: 'var(--th-text-label)', backgroundColor: 'var(--th-surface-alt)', border: '3px solid var(--th-border)' }}
               >
                 this isn&apos;t the quickest route, but it&apos;s the safest one we found.
+                {results.extraWalkMinutes ? ` (+${results.extraWalkMinutes} min)` : ''}
                 <button
                   onClick={() => handleAnalyze(lastPickup, lastDropoff, false)}
                   className="ml-2 underline transition-colors"
