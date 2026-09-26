@@ -46,7 +46,7 @@ export default function Home() {
   const [lastDropoff, setLastDropoff] = useState('');
 
   // Safest route by default; the quickest route is one tap away
-  const handleAnalyze = async (pickup: string, dropoff: string, avoidUnsafe: boolean = true) => {
+  const handleAnalyze = async (pickup: string, dropoff: string, route: 'auto' | 'safest' | 'quickest' = 'auto') => {
     setLoading(true);
     setError(null);
     setResults(null);
@@ -57,7 +57,7 @@ export default function Home() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pickup, dropoff, avoidUnsafe, skipAi: true }),
+        body: JSON.stringify({ pickup, dropoff, route, skipAi: true }),
       });
 
       const data = await response.json();
@@ -188,7 +188,7 @@ export default function Home() {
             {results.safetyWarnings.length > 0 && !results.isSaferRoute && (
               <div className="text-center">
                 <button
-                  onClick={() => handleAnalyze(lastPickup, lastDropoff, true)}
+                  onClick={() => handleAnalyze(lastPickup, lastDropoff, 'safest')}
                   className="px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wide transition-all hover:scale-[1.02] active:scale-[0.98]"
                   style={{
                     border: '3px solid var(--th-border)',
@@ -196,7 +196,7 @@ export default function Home() {
                     color: 'var(--th-text)',
                   }}
                 >
-                  try a safer route instead?
+                  try a safer route instead?{results.saferRouteExtraMinutes ? ` (+${results.saferRouteExtraMinutes} min)` : ''}
                 </button>
               </div>
             )}
@@ -209,7 +209,7 @@ export default function Home() {
                 this isn&apos;t the quickest route, but it&apos;s the safest one we found.
                 {results.extraWalkMinutes ? ` (+${results.extraWalkMinutes} min)` : ''}
                 <button
-                  onClick={() => handleAnalyze(lastPickup, lastDropoff, false)}
+                  onClick={() => handleAnalyze(lastPickup, lastDropoff, 'quickest')}
                   className="ml-2 underline transition-colors"
                   style={{ color: 'var(--th-text-sec)' }}
                 >
