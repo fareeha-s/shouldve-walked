@@ -9,7 +9,7 @@ interface RateLimitStore {
 }
 
 const store: RateLimitStore = {};
-const GLOBAL_LIMIT = 1500; // Max requests before stopping (keeps you under $20)
+const GLOBAL_LIMIT = 200; // Soft guard only — in-memory, resets on cold start. Real cap is the Anthropic spend limit.
 const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 let globalCount = 0;

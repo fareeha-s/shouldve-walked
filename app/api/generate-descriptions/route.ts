@@ -1,24 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-function getOpenAIClient() {
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
-  });
-}
+import { generateText } from '@/lib/claude';
 
 export async function POST(request: NextRequest) {
   try {
     const { places, walkTimeMinutes } = await request.json();
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
+        { error: 'Anthropic API key not configured' },
         { status: 500 }
       );
     }
-
-    const openai = getOpenAIClient();
 
     // Generate POI descriptions
     const poiPrompt = `You are writing one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. Factual but with elevated language. You know these places well and you are simply stating what is there. Not trying to be funny or clever. Just describing what you would see, hear, or feel if you walked past.
@@ -93,28 +85,20 @@ Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The h
 Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ONLY the comparisons, one per line.`;
     }
 
-    // Fire both GPT calls in parallel
+    // Fire both Claude calls in parallel
     const [poiResponse, timeResponse] = await Promise.all([
-      openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: poiPrompt }],
-        temperature: 0.9,
-      }),
-      openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: timePrompt }],
-        temperature: 0.9,
-      }),
+      generateText(poiPrompt),
+      generateText(timePrompt),
     ]);
 
-    const descriptionsText = poiResponse.choices[0].message.content || '';
+    const descriptionsText = poiResponse;
     const descriptions = descriptionsText
       .split('\n')
       .filter((line) => line.trim())
       .map((line) => line.replace(/^\d+\.\s*/, '').trim())
       .map((line) => line.replace(/^["']|["']$/g, '')); // Remove leading/trailing quotes
 
-    const timeComparisonsText = timeResponse.choices[0].message.content || '';
+    const timeComparisonsText = timeResponse;
     const timeComparisons = timeComparisonsText
       .split('\n')
       .filter((line) => line.trim())

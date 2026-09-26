@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { AnalysisResult, PointOfInterest } from '@/lib/types';
 import { checkRateLimit } from '@/lib/ratelimit';
-import OpenAI from 'openai';
+import { generateText } from '@/lib/claude';
 
 export const maxDuration = 30;
 
@@ -1024,9 +1024,8 @@ export async function POST(request: NextRequest) {
     let descriptions: string[] = [];
     let timeComparisons: { text: string }[] = [];
 
-    if (process.env.OPENAI_API_KEY) {
+    if (process.env.ANTHROPIC_API_KEY) {
       try {
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
         const poiPrompt = `You are writing one-line descriptions of SF places someone missed by taking a robotaxi instead of walking. Factual but with elevated language. You know these places well and you are simply stating what is there. Not trying to be funny or clever. Just describing what you would see, hear, or feel if you walked past.
 
@@ -1097,26 +1096,18 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
         }
 
         const [poiResponse, timeResponse] = await Promise.all([
-          openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: poiPrompt }],
-            temperature: 0.9,
-          }),
-          openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: timePrompt }],
-            temperature: 0.9,
-          }),
+          generateText(poiPrompt),
+          generateText(timePrompt),
         ]);
 
-        const descriptionsText = poiResponse.choices[0].message.content || '';
+        const descriptionsText = poiResponse;
         descriptions = descriptionsText
           .split('\n')
           .filter((line) => line.trim())
           .map((line) => line.replace(/^\d+\.\s*/, '').trim())
           .map((line) => line.replace(/^["']|["']$/g, ''));
 
-        const timeComparisonsText = timeResponse.choices[0].message.content || '';
+        const timeComparisonsText = timeResponse;
         timeComparisons = timeComparisonsText
           .split('\n')
           .filter((line) => line.trim())
@@ -1125,7 +1116,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
           .filter((line) => line.length > 0)
           .map((text) => ({ text }));
       } catch (error) {
-        console.error('OpenAI error (non-fatal):', error);
+        console.error('Claude error (non-fatal):', error);
       }
     }
 
