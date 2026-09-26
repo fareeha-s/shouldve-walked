@@ -44,14 +44,13 @@ export default function Home() {
   const [lastPickup, setLastPickup] = useState('');
   const [lastDropoff, setLastDropoff] = useState('');
 
-  const handleAnalyze = async (pickup: string, dropoff: string, avoidUnsafe: boolean = false) => {
+  // Safest route by default; the quickest route is one tap away
+  const handleAnalyze = async (pickup: string, dropoff: string, avoidUnsafe: boolean = true) => {
     setLoading(true);
     setError(null);
     setResults(null);
-    if (!avoidUnsafe) {
-      setLastPickup(pickup);
-      setLastDropoff(dropoff);
-    }
+    setLastPickup(pickup);
+    setLastDropoff(dropoff);
 
     try {
       const response = await fetch('/api/analyze', {
@@ -186,13 +185,13 @@ export default function Home() {
                 className="text-center py-3 px-4 font-mono text-xs"
                 style={{ color: 'var(--th-text-label)', backgroundColor: 'var(--th-surface-alt)', border: '3px solid var(--th-border)' }}
               >
-                this route avoids the sketchier areas. it might take a bit longer.
+                this isn&apos;t the quickest route, but it&apos;s the safest one we found.
                 <button
                   onClick={() => handleAnalyze(lastPickup, lastDropoff, false)}
                   className="ml-2 underline transition-colors"
                   style={{ color: 'var(--th-text-sec)' }}
                 >
-                  show shortest route
+                  show quickest route
                 </button>
               </div>
             )}

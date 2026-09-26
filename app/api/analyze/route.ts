@@ -102,6 +102,7 @@ function isInBayArea(lat: number, lng: number): boolean {
 
 async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boolean = false) {
   let url: string;
+  let rerouted = false;
 
   if (avoidUnsafe) {
     // First, get the normal route to see which sketchy areas it passes through
@@ -146,6 +147,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     }
 
     if (avoidancePoints.length > 0) {
+      rerouted = true;
       const waypointStr = avoidancePoints
         .map(wp => `via:${wp.lat},${wp.lng}`)
         .join('|');
@@ -212,6 +214,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     polyline: route.overview_polyline.points,
     bounds: route.bounds,
     steps: leg.steps,
+    rerouted,
   };
 }
 
@@ -1181,7 +1184,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
         ? timeComparisons
         : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
       safetyWarnings,
-      isSaferRoute: avoidUnsafe === true,
+      isSaferRoute: directions.rerouted,
     };
 
     return NextResponse.json(result);
