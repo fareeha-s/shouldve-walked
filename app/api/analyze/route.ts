@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { AnalysisResult, PointOfInterest } from '@/lib/types';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { generateText } from '@/lib/claude';
+import { hoursLabel } from '@/lib/formatTime';
 import { FALLBACK_DESCRIPTIONS, FALLBACK_TIME_COMPARISONS } from '@/lib/fallbacks';
 
 export const maxDuration = 30;
@@ -867,32 +868,25 @@ function calculateVerdict(
     };
   }
 
-  // Edge case: Absurdly long walks (over 2 hours)
+  // Over 2 hours: the ride is fair, but keep the door open to walking
   if (walkTimeMinutes > 120) {
     return {
       worthIt: true,
-      reason: `${Math.round(walkTimeMinutes / 60)} hours of walking... that's a day hike. ${ride} was smart 💀`,
+      reason: `${hoursLabel(walkTimeMinutes)} on foot is a proper adventure... the ${ride} was fair this time. maybe walk part of it next time 🤍`,
     };
   }
 
-  // Edge case: Very long walks (over 90 minutes) - but if it's gorgeous out with parks, still guilt trip
-  if (walkTimeMinutes > 90 && !(weather.condition === 'clear' && weather.temperature > 55 && weather.temperature < 80 && hasParks && safetyWarnings.length === 0)) {
-    return {
-      worthIt: true,
-      reason: 'this would\'ve been more exercise than most people get in a week... 😭',
-    };
-  }
-  // 60-90 min walks: guilt trip if weather is decent and it's safe
-  if (walkTimeMinutes > 60 && safetyWarnings.length === 0 && weather.condition !== 'stormy' && weather.temperature > 50 && weather.temperature < 85) {
+  // 1-2 hours is a very walkable SF afternoon when the weather's decent
+  if (walkTimeMinutes >= 60 && weather.condition !== 'stormy' && weather.condition !== 'rainy' && weather.temperature > 50 && weather.temperature < 85) {
     if (hasParks && weather.condition === 'clear') {
       return {
         worthIt: false,
-        reason: `${walkTimeMinutes} minutes through parks on a ${weather.temperature}° day... yeah you missed out 🤍`,
+        reason: `${hoursLabel(walkTimeMinutes)} through parks on a ${weather.temperature}° day... that's a great afternoon you skipped 🤍`,
       };
     }
     return {
       worthIt: false,
-      reason: `${walkTimeMinutes} minutes is a real walk... but that's the whole point ☹️`,
+      reason: `${hoursLabel(walkTimeMinutes)} is a real walk... and a good one. that's the whole point ☹️`,
     };
   }
 
