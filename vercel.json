@@ -1,4 +1,12 @@
 {
   "version": 2,
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "shouldve-walked.vercel.app" }],
+      "destination": "https://justwalk.fareeha.sh/:path*",
+      "permanent": true
+    }
+  ]
 }
