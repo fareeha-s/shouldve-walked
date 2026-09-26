@@ -93,6 +93,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
   let quickestDuration: number | null = null;
   let normalData: any = null;
   let declinedDetourSeconds = 0;
+  let viaPoints: Array<{ lat: number; lng: number }> = [];
 
   if (avoidUnsafe) {
     // First, get the normal route to see which sketchy areas it passes through
@@ -109,9 +110,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     if (normalData.status === 'OK' && normalData.routes[0]) {
       quickestDuration = normalData.routes[0].legs[0].duration.value;
       const normalSteps = normalData.routes[0].legs[0].steps;
-      for (const step of normalSteps) {
-        const lat = step.start_location.lat;
-        const lng = step.start_location.lng;
+      for (const { lat, lng } of normalSteps.flatMap(stepPoints)) {
         for (const area of SKETCHY_AREAS) {
           if (lat >= area.bounds.south && lat <= area.bounds.north &&
               lng >= area.bounds.west && lng <= area.bounds.east) {
@@ -139,6 +138,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
 
     if (avoidancePoints.length > 0) {
       rerouted = true;
+      viaPoints = avoidancePoints;
       const waypointStr = avoidancePoints
         .map(wp => `via:${wp.lat},${wp.lng}`)
         .join('|');
@@ -173,6 +173,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
       declinedDetourSeconds = detour;
       data = normalData;
       rerouted = false;
+      viaPoints = [];
     }
   }
 
@@ -217,6 +218,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     steps: leg.steps,
     rerouted,
     declinedDetourSeconds,
+    viaPoints,
     extraSeconds: rerouted && quickestDuration !== null ? Math.max(0, leg.duration.value - quickestDuration) : 0,
   };
 }
@@ -760,6 +762,31 @@ async function getWeather(lat: number, lng: number) {
   }
 }
 
+// Decode a Google encoded polyline into points
+function decodePolyline(encoded: string): Array<{ lat: number; lng: number }> {
+  const points: Array<{ lat: number; lng: number }> = [];
+  let index = 0, lat = 0, lng = 0;
+  while (index < encoded.length) {
+    for (const coord of ['lat', 'lng'] as const) {
+      let shift = 0, result = 0, byte: number;
+      do {
+        byte = encoded.charCodeAt(index++) - 63;
+        result |= (byte & 0x1f) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      const delta = result & 1 ? ~(result >> 1) : result >> 1;
+      if (coord === 'lat') lat += delta; else lng += delta;
+    }
+    points.push({ lat: lat / 1e5, lng: lng / 1e5 });
+  }
+  return points;
+}
+
+// Every point along a step, so long straight stretches through an area are caught
+function stepPoints(step: any): Array<{ lat: number; lng: number }> {
+  return step.polyline?.points ? decodePolyline(step.polyline.points) : [step.start_location];
+}
+
 function checkSafetyWarnings(steps: any[]): { area: string; warning: string }[] {
   const warnings: { area: string; warning: string }[] = [];
   // Use SF timezone so night detection works on Vercel (UTC servers)
@@ -767,10 +794,7 @@ function checkSafetyWarnings(steps: any[]): { area: string; warning: string }[] 
   const hour = parseInt(sfHour, 10);
   const isNight = hour < 6 || hour > 21;
 
-  for (const step of steps) {
-    const lat = step.start_location.lat;
-    const lng = step.start_location.lng;
-
+  for (const { lat, lng } of steps.flatMap(stepPoints)) {
     for (const area of SKETCHY_AREAS) {
       if (
         lat >= area.bounds.south &&
@@ -1193,6 +1217,10 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       isSaferRoute: directions.rerouted,
       extraWalkMinutes: Math.round(directions.extraSeconds / 60),
       saferRouteExtraMinutes: Math.round(directions.declinedDetourSeconds / 60),
+      // Free deep link: opens this same walk (including any safer detour) in Google Maps
+      googleMapsUrl: `https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(dropoff)}${
+        directions.viaPoints.length ? `&waypoints=${encodeURIComponent(directions.viaPoints.map((p) => `${p.lat},${p.lng}`).join('|'))}` : ''
+      }`,
     };
 
     return NextResponse.json(result);
