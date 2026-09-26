@@ -735,17 +735,20 @@ function calculateHealthStats(distance: number, duration: number) {
   };
 }
 
-// "foggy in marina district, clear in mission" when the two ends of the walk differ
+// "foggy at marina green, clear at dolores park" when the two ends of the walk differ
 function microclimateNote(
   start: { condition: string; temperature: number },
   end: { condition: string; temperature: number },
-  neighborhoods: string[]
+  pickup: string,
+  dropoff: string
 ): string | null {
   if (start.condition === 'unknown' || end.condition === 'unknown') return null;
   const sameSky = start.condition === end.condition;
   if (sameSky && Math.abs(start.temperature - end.temperature) < 5) return null;
-  const startPlace = neighborhoods[0] ? `in ${neighborhoods[0].toLowerCase()}` : 'where you started';
-  const endPlace = neighborhoods.length > 1 ? `in ${neighborhoods[neighborhoods.length - 1].toLowerCase()}` : 'where you were headed';
+  // First part of what the person typed, e.g. "Dolores Park, San Francisco, CA" -> "dolores park"
+  const shortName = (address: string) => address.split(',')[0].trim().toLowerCase();
+  const startPlace = shortName(pickup) ? `at ${shortName(pickup)}` : 'where you started';
+  const endPlace = shortName(dropoff) ? `at ${shortName(dropoff)}` : 'where you were headed';
   const describe = (w: { condition: string; temperature: number }) => (sameSky ? `${w.temperature}°` : w.condition);
   return `${describe(start)} ${startPlace}, ${describe(end)} ${endPlace}`;
 }
@@ -1032,7 +1035,7 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
       },
       verdict,
       weather,
-      weatherNote: microclimateNote(startWeather, endWeather, neighborhoods),
+      weatherNote: microclimateNote(startWeather, endWeather, pickup, dropoff),
       neighborhoods,
       pointsOfInterest,
       healthStats,
