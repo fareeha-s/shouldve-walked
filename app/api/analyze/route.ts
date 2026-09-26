@@ -23,8 +23,8 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7877, south: 37.7805, west: -122.4181, east: -122.4089 },
     alwaysWarn: true, // sketchy any time of day
     warnings: {
-      day: "just keep your head on a swivel around here",
-      night: "not the best area to be wandering after dark"
+      day: "stay aware of your surroundings on this part of the walk.",
+      night: "this part of the walk is less safe at night. consider a ride instead."
     }
   },
   {
@@ -32,8 +32,8 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7840, south: 37.7800, west: -122.4140, east: -122.4080 },
     alwaysWarn: true,
     warnings: {
-      day: "this stretch can be a bit much",
-      night: "not the vibe for a night stroll"
+      day: "stay aware of your surroundings on this part of the walk.",
+      night: "this part of the walk is less safe at night. consider a ride instead."
     }
   },
   {
@@ -41,8 +41,8 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7820, south: 37.7750, west: -122.4100, east: -122.4050 },
     alwaysWarn: true,
     warnings: {
-      day: "this block has a lot going on",
-      night: "you don't want to be walking here at night"
+      day: "stay aware of your surroundings on this part of the walk.",
+      night: "this part of the walk is less safe at night. consider a ride instead."
     }
   },
   {
@@ -50,7 +50,7 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7350, south: 37.7100, west: -122.3950, east: -122.3700 },
     alwaysWarn: false, // only warn at night
     warnings: {
-      night: "definitely not a walking-at-night situation"
+      night: "this part of the walk is less safe at night. consider a ride instead."
     }
   },
   {
@@ -58,7 +58,7 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7350, south: 37.7200, west: -122.3850, east: -122.3600 },
     alwaysWarn: false,
     warnings: {
-      night: "hard pass on walking here after dark"
+      night: "this part of the walk is less safe at night. consider a ride instead."
     }
   },
   {
@@ -66,7 +66,7 @@ const SKETCHY_AREAS = [
     bounds: { north: 37.7850, south: 37.7750, west: -122.4350, east: -122.4200 },
     alwaysWarn: false,
     warnings: {
-      night: "not ideal for a late night walk"
+      night: "this part of the walk is less safe at night. consider a ride instead."
     }
   },
 ];
@@ -102,6 +102,8 @@ function isInBayArea(lat: number, lng: number): boolean {
 
 async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boolean = false) {
   let url: string;
+  let rerouted = false;
+  let quickestDuration: number | null = null;
 
   if (avoidUnsafe) {
     // First, get the normal route to see which sketchy areas it passes through
@@ -116,6 +118,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     // Find which sketchy areas the normal route passes through
     const areasToAvoid = new Set<string>();
     if (normalData.status === 'OK' && normalData.routes[0]) {
+      quickestDuration = normalData.routes[0].legs[0].duration.value;
       const normalSteps = normalData.routes[0].legs[0].steps;
       for (const step of normalSteps) {
         const lat = step.start_location.lat;
@@ -146,6 +149,7 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     }
 
     if (avoidancePoints.length > 0) {
+      rerouted = true;
       const waypointStr = avoidancePoints
         .map(wp => `via:${wp.lat},${wp.lng}`)
         .join('|');
@@ -212,6 +216,8 @@ async function getDirections(pickup: string, dropoff: string, avoidUnsafe: boole
     polyline: route.overview_polyline.points,
     bounds: route.bounds,
     steps: leg.steps,
+    rerouted,
+    extraSeconds: rerouted && quickestDuration !== null ? Math.max(0, leg.duration.value - quickestDuration) : 0,
   };
 }
 
@@ -1181,7 +1187,8 @@ Generate 5 different comparisons for a ${walkTimeMinutes} minute walk. Return ON
         ? timeComparisons
         : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
       safetyWarnings,
-      isSaferRoute: avoidUnsafe === true,
+      isSaferRoute: directions.rerouted,
+      extraWalkMinutes: Math.round(directions.extraSeconds / 60),
     };
 
     return NextResponse.json(result);
