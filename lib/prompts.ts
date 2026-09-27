@@ -26,33 +26,42 @@ Return ONLY the descriptions, one per line, numbered to match.`;
 }
 
 export function timePrompt(walkTimeMinutes: number): string {
-  const length = walkTimeMinutes > 120
-    ? `This is a long walk (${Math.round(walkTimeMinutes / 60)} hours). Everything you compare it to should take less time than the walk.`
-    : 'The thing you compare it to should take roughly that long. A little exaggeration is fine, nothing absurd.';
+  const timing = walkTimeMinutes <= 5
+    ? 'This is extremely short. Compare it only to things that plausibly take 1–5 minutes: an elevator, a coffee pickup, rereading an error, choosing a reaction. Do not mention meetings, apartment hunting, debugging sessions or other long activities.'
+    : walkTimeMinutes <= 15
+      ? 'Compare it to ordinary things that plausibly take 5–15 minutes: a coffee line, a small review, waiting for a ride, finding the right browser tab.'
+      : walkTimeMinutes <= 40
+        ? 'Compare it to things that plausibly take 15–40 minutes: a standup that ran over, a code review, a pastry line, getting across town.'
+        : walkTimeMinutes <= 120
+          ? 'Compare it to things that plausibly take about an hour or two. Keep the comparison literal enough to believe.'
+          : `This is a long walk (${Math.round(walkTimeMinutes / 60)} hours). Everything you compare it to must clearly take less time than the walk.`;
 
   return `Write 5 dry, deadpan time comparisons for a ${walkTimeMinutes} minute walk that someone skipped by taking a robotaxi in San Francisco.
 
-${length}
+${timing}
 
 Each one is a personal callout about how the reader spends time. Second person only ("you", "your"), never "I" or "my".
 
-The audience is SF tech twitter: people who've shipped real products, read papers, have opinions on infra. The tone is smart tech twitter. Dry, sarcastic, not trying hard. Not YC references. Not junior.
+The audience is people who build things in San Francisco. They know deploys, code review, Slack and the city's small rituals. Let that context sit in the background; do not perform a caricature of a tech person.
 
-Make the 5 genuinely different from each other. Mostly tech/work life (CI, deploys, code review, slack, standups, infra, evals, tabs open), with one or two about SF life (lines for pastries, apartment hunting, waiting on a robotaxi). No more than one about deploys or builds.
+Make the 5 genuinely different. Use at most 2 tech/work references. The others should come from ordinary phone use, errands, coffee, transit or recognizable SF life. Use at most one niche technical noun in any line.
 
 Avoid:
 - anything about exercise, fitness, bodies or weight, or that makes walking sound like a chore. This site encourages walking.
 - dating, relationships, drinking.
+- invented personal history ("last weekend", "your last launch") or claims that assume a strangely specific event happened to the reader.
+- jargon stacks, startup stereotypes, named AI tools, model evals, founders, VCs, YC, "shipping", "critical path" and jokes about not shipping.
+- elaborate setups. One observation per line.
 
 Examples of the vibe:
 - you've spent longer waiting for CI to pass
-- you scrolled twitter longer than this before getting out of bed
-- shorter than your average debugging session
-- that's how long you spent choosing a font for your landing page
-- you've waited longer in line at tartine
+- you spent longer deciding which coffee shop was closer
+- shorter than the line at tartine
+- about one mildly unnecessary slack thread
 
 Don't try to be funny. Just state the comparison as a fact. Deadpan. Flat. The humor comes from the truth of it.
-Don't explain or set up the joke, and don't wink at it. Specific nouns beat generic ones ("waiting for evals to finish" beats "waiting for work stuff"). No emojis, no exclamation marks, no "lol".
+Every comparison must be believable for a ${walkTimeMinutes} minute duration. If the timing feels wrong, rewrite it.
+Don't explain or set up the joke, and don't wink at it. No emojis, no exclamation marks, no "lol".
 
 All lowercase. Return ONLY the 5 comparisons, one per line.`;
 }

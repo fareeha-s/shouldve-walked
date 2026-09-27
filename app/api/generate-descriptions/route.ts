@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from '@/lib/claude';
 import { placesPrompt, timePrompt, cleanLines } from '@/lib/prompts';
-import { FALLBACK_DESCRIPTIONS, FALLBACK_TIME_COMPARISONS } from '@/lib/fallbacks';
+import { FALLBACK_DESCRIPTIONS, fallbackTimeComparisons } from '@/lib/fallbacks';
 
-function fallbackResponse(count: number) {
+function fallbackResponse(count: number, walkTimeMinutes = 15) {
   return NextResponse.json({
     descriptions: Array.from({ length: count }, (_, i) => FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length]),
-    timeComparisons: FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
+    timeComparisons: fallbackTimeComparisons(walkTimeMinutes).map((text) => ({ text })),
   });
 }
 
 export async function POST(request: NextRequest) {
   let placeCount = 7;
+  let walkTimeMinutes = 15;
   try {
     const body = await request.json();
     // Only accept what the page sends: up to 7 short place names and a sane walk time
@@ -19,11 +20,11 @@ export async function POST(request: NextRequest) {
       name: String(p?.name ?? '').slice(0, 80),
       type: String(p?.type ?? '').slice(0, 20),
     }));
-    const walkTimeMinutes = Math.min(Math.max(Math.round(Number(body.walkTimeMinutes) || 0), 1), 1000);
+    walkTimeMinutes = Math.min(Math.max(Math.round(Number(body.walkTimeMinutes) || 0), 1), 1000);
     placeCount = places.length;
 
     if (!process.env.ANTHROPIC_API_KEY || places.length === 0) {
-      return fallbackResponse(placeCount);
+      return fallbackResponse(placeCount, walkTimeMinutes);
     }
 
     // Generate POI descriptions
@@ -45,10 +46,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       descriptions: Array.from({ length: placeCount }, (_, i) => descriptions[i] || FALLBACK_DESCRIPTIONS[i % FALLBACK_DESCRIPTIONS.length]),
-      timeComparisons: timeComparisons.length ? timeComparisons : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
+      timeComparisons: timeComparisons.length ? timeComparisons : fallbackTimeComparisons(walkTimeMinutes).map((text) => ({ text })),
     });
   } catch (error) {
     console.error('Error generating descriptions:', error);
-    return fallbackResponse(placeCount);
+    return fallbackResponse(placeCount, walkTimeMinutes);
   }
 }
