@@ -4,7 +4,7 @@ import { checkRateLimit } from '@/lib/ratelimit';
 import { generateText } from '@/lib/claude';
 import { placesPrompt, timePrompt, cleanLines } from '@/lib/prompts';
 import { calculateVerdict } from '@/lib/verdict';
-import { FALLBACK_DESCRIPTIONS, FALLBACK_TIME_COMPARISONS } from '@/lib/fallbacks';
+import { FALLBACK_DESCRIPTIONS, fallbackTimeComparisons } from '@/lib/fallbacks';
 
 export const maxDuration = 30;
 
@@ -968,7 +968,7 @@ export async function POST(request: NextRequest) {
       healthStats,
       timeComparisons: timeComparisons.length || skipAi
         ? timeComparisons
-        : FALLBACK_TIME_COMPARISONS.map((text) => ({ text })),
+        : fallbackTimeComparisons(walkTimeMinutes).map((text) => ({ text })),
       safetyWarnings,
       isSaferRoute: directions.rerouted,
       extraWalkMinutes: Math.round(directions.extraSeconds / 60),
