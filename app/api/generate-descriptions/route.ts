@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from '@/lib/claude';
-import { placesPrompt, timePrompt, cleanLines } from '@/lib/prompts';
+import { placesPrompt, timePrompt, cleanLines, cleanTimeLines } from '@/lib/prompts';
 import { FALLBACK_DESCRIPTIONS, fallbackTimeComparisons } from '@/lib/fallbacks';
 
 function fallbackResponse(count: number, walkTimeMinutes = 15) {
@@ -34,13 +34,13 @@ export async function POST(request: NextRequest) {
     // Fire both Claude calls in parallel
     const [poiResponse, timeResponse] = await Promise.all([
       generateText(poiPrompt),
-      generateText(timeComparisonPrompt),
+      generateText(timeComparisonPrompt, 0.55),
     ]);
 
     const descriptions = cleanLines(poiResponse);
 
     // Shuffle so the one shown first isn't always the same kind of joke
-    const timeComparisons = cleanLines(timeResponse)
+    const timeComparisons = cleanTimeLines(timeResponse, fallbackTimeComparisons(walkTimeMinutes))
       .sort(() => Math.random() - 0.5)
       .map((text) => ({ text }));
 
