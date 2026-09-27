@@ -5,11 +5,11 @@ const client = new Anthropic({
 });
 
 // One short, deadpan completion. Outputs are a few lines, so max_tokens stays small to cap cost.
-export async function generateText(prompt: string): Promise<string> {
+export async function generateText(prompt: string, temperature = 0.9): Promise<string> {
   const response = await client.messages.create({
     model: 'claude-haiku-4-5',
     max_tokens: 1024,
-    temperature: 0.9,
+    temperature,
     messages: [{ role: 'user', content: prompt }],
   });
   return response.content

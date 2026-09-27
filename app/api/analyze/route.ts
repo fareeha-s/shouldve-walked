@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { AnalysisResult, PointOfInterest } from '@/lib/types';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { generateText } from '@/lib/claude';
-import { placesPrompt, timePrompt, cleanLines } from '@/lib/prompts';
+import { placesPrompt, timePrompt, cleanLines, cleanTimeLines } from '@/lib/prompts';
 import { calculateVerdict } from '@/lib/verdict';
 import { FALLBACK_DESCRIPTIONS, fallbackTimeComparisons } from '@/lib/fallbacks';
 
@@ -917,12 +917,12 @@ export async function POST(request: NextRequest) {
         // Fire both Claude calls in parallel
         const [poiResponse, timeResponse] = await Promise.all([
           generateText(poiPrompt),
-          generateText(timeComparisonPrompt),
+          generateText(timeComparisonPrompt, 0.55),
         ]);
 
         descriptions = cleanLines(poiResponse);
 
-        timeComparisons = cleanLines(timeResponse)
+        timeComparisons = cleanTimeLines(timeResponse, fallbackTimeComparisons(walkTimeMinutes))
           .sort(() => Math.random() - 0.5)
           .map((text) => ({ text }));
       } catch (error) {
